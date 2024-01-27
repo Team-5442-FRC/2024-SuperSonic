@@ -20,6 +20,8 @@ public class Constants {
         public final static double MaxAngularAcceleration = 4 * Math.PI * PercentageSpeed;
         public final static double SpeedDeadbandPercentage = 0.25; //Deadband or Deadzone of requested speed, as a percentage of the maximum speed;
 
+        
+
         public static final HolonomicPathFollowerConfig config = new HolonomicPathFollowerConfig(
             new PIDConstants(0,0,0),
             new PIDConstants(0,0,0),
@@ -27,6 +29,20 @@ public class Constants {
             0,
             new ReplanningConfig() //TODO set these properly
         );
+
+    }
+
+    public static final class shooterConstants {
+
+        public final static double MaxSpeed = 0.2; //Percentage (1.0 = 100%)
+        public final static double ShooterTopSpeed = 1;
+        public final static double ShooterBottomSpeed = 0.92;
+        public final static double IntakeSpeed = 0.35;
+        public final static double ReverseIntakeSpeed = -0.15;
+        public final static double ReverseIntakeAutomaticSpeed = -0.1;
+        public final static double ReverseDuration = 1; // Seconds
+        public final static double TriggerDeadzone = 0.9;
+        public final static double MotorSettledAmps = 18;
 
     }
 

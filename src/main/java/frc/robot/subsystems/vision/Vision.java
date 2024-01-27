@@ -12,7 +12,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.Telemetry;
+// import frc.robot.subsystems.Telemetry;
 
 public class Vision extends SubsystemBase {
 
@@ -23,7 +23,7 @@ public class Vision extends SubsystemBase {
   NetworkTableInstance inst = NetworkTableInstance.getDefault();
   NetworkTable visionTable;
 
-  Telemetry logger;
+  // Telemetry logger;
 
   /** Creates a new Vision. */
   public Vision() {
@@ -31,7 +31,7 @@ public class Vision extends SubsystemBase {
 
     fieldPose = new Pose2d();
     localPose = new Pose2d();
-    logger = RobotContainer.logger;
+    // logger = RobotContainer.logger;
   }
 
   public boolean target() {
@@ -82,11 +82,11 @@ public class Vision extends SubsystemBase {
     );
 
     if(target) {
-      RobotContainer.drivetrain.addVisionMeasurement(fieldPose, logger.getTime());
+      // RobotContainer.drivetrain.addVisionMeasurement(fieldPose, logger.getTime());
     }
 
-    SmartDashboard.putNumber("Robot Field Position X", logger.getPose().getX());
-    SmartDashboard.putNumber("Robot Field Position Y",  logger.getPose().getY());
+    // SmartDashboard.putNumber("Robot Field Position X", logger.getPose().getX());
+    // SmartDashboard.putNumber("Robot Field Position Y",  logger.getPose().getY());
     SmartDashboard.putNumber("Robot Local Position X", getLocalPose().getX());
     SmartDashboard.putNumber("Robot Local Position Y", getLocalPose().getY());
 
