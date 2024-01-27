@@ -138,7 +138,7 @@ public class RobotContainer {
     );
 
     noFunnyun = new SequentialCommandGroup(
-      new WaitCommand(1),
+      new WaitCommand(0.5),
       new NoFunnyun()
     );
     

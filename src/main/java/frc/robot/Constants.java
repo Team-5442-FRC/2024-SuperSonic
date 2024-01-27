@@ -39,8 +39,8 @@ public class Constants {
         public final static double ShooterBottomSpeed = 0.92;
         public final static double IntakeSpeed = 0.35;
         public final static double ReverseIntakeSpeed = -0.15;
-        public final static double ReverseIntakeAutomaticSpeed = -0.1;
-        public final static double ReverseDuration = 1; // Seconds
+        public final static double ReverseIntakeAutomaticSpeed = -0.15;
+        public final static double ReverseDuration = 3; // Seconds
         public final static double TriggerDeadzone = 0.9;
         public final static double MotorSettledAmps = 18;
 
