@@ -7,8 +7,8 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
+import frc.robot.Constants.pivotConstants;
 import frc.robot.Constants.shooterConstants;
-import frc.robot.subsystems.Shooter;
 
 public class ShooterManager extends Command {
 
@@ -31,25 +31,34 @@ public class ShooterManager extends Command {
   @Override
   public void execute() {
 
+
     speed = 0;
 
     //Shooter Code
 
     if(RobotContainer.xbox2.getRightTriggerAxis() > shooterConstants.TriggerDeadzone && RobotContainer.hasFunnyun) {
-        RobotContainer.shooter.setShooterSpeed(shooterConstants.ShooterTopSpeed, shooterConstants.ShooterBottomSpeed);
+
+      if(RobotContainer.ShooterMode == 1) {
+        RobotContainer.shooter.setShooterSpeed(RobotContainer.shooter.getSpeakerSpeed());
+      } else if (RobotContainer.ShooterMode == 2) {
+        RobotContainer.shooter.setShooterSpeed(shooterConstants.AmpSpeed);
+      } else RobotContainer.shooter.setShooterSpeed(0);
+      
     } else {
-      RobotContainer.shooter.setShooterSpeed(0,0);
+      RobotContainer.shooter.setShooterSpeed(0);
     }
 
-    if(RobotContainer.xbox2A.getAsBoolean() && RobotContainer.hasFunnyun && RobotContainer.xbox2.getRightTriggerAxis() > shooterConstants.TriggerDeadzone && RobotContainer.shooter.shooterMotor1.getOutputCurrent() <= shooterConstants.MotorSettledAmps ) {
+    if(RobotContainer.xbox2A.getAsBoolean() && RobotContainer.hasFunnyun && (RobotContainer.xbox2.getRightTriggerAxis() > shooterConstants.TriggerDeadzone || RobotContainer.xbox2.getRightBumper()) && RobotContainer.shooter.shooterMotor1.getOutputCurrent() <= shooterConstants.MotorSettledAmps ) {
       speed = shooterConstants.IntakeSpeed;
+    }
 
-      if(!kIsFunnyun && RobotContainer.proximitySensor.get()) {
-        RobotContainer.noFunnyun.schedule();
-        kIsFunnyun = true;
-      }
+    if(!kIsFunnyun && RobotContainer.proximitySensor.get()) {
+      RobotContainer.noFunnyun.schedule();
+      kIsFunnyun = true;
+    } else {
       kIsFunnyun = RobotContainer.proximitySensor.get();
     }
+
 
     //Intake Code
     if(RobotContainer.xbox2B.getAsBoolean() && !RobotContainer.hasFunnyun) {
@@ -67,6 +76,23 @@ public class ShooterManager extends Command {
     if(speed > 0 && RobotContainer.hasFunnyun == false && !proximitySensor.get()) {
       RobotContainer.hasFunnyun = true;
       RobotContainer.gotFunnyun.schedule();
+    }
+
+    // Pivot Code
+    if (RobotContainer.xbox2.getPOV() == 0) { // Shoot - Up
+      RobotContainer.ShooterMode = 1;
+    } else if (RobotContainer.xbox2.getPOV() == 90) { // Amp - Right
+      RobotContainer.ShooterMode = 2;
+    } else if (RobotContainer.xbox2.getPOV() == 180) { // Intake - Down
+      RobotContainer.ShooterMode = 0;
+    }
+
+    if(RobotContainer.ShooterMode == 0) {
+      RobotContainer.shooter.pivotToAngle(pivotConstants.IntakeAngle); //Intake Mode 
+    } else if (RobotContainer.ShooterMode == 2) {
+      RobotContainer.shooter.pivotToAngle(pivotConstants.AmpAngle); //Amp Mode
+    } else if (RobotContainer.ShooterMode == 1) {
+      RobotContainer.shooter.pivotToAngle(RobotContainer.shooter.calculatePivotAngle());
     }
 
   }

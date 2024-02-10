@@ -8,6 +8,8 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import edu.wpi.first.math.geometry.Translation3d;
+
 /** Add your docs here. */
 public class Constants {
 
@@ -34,15 +36,46 @@ public class Constants {
 
     public static final class shooterConstants {
 
-        public final static double MaxSpeed = 0.2; //Percentage (1.0 = 100%)
-        public final static double ShooterTopSpeed = 1;
-        public final static double ShooterBottomSpeed = 0.92;
+        public final static double ShooterMaxSpeed = 0.8;
+        public final static double ShooterMinSpeed = 0.4;
+        public final static double ShooterBottomSpeedDifference = 0.08; //How much slower should the bottom speeds be
+        public final static double AmpSpeed = 0.4; // Both motors same speed
         public final static double IntakeSpeed = 0.35;
         public final static double ReverseIntakeSpeed = -0.15;
-        public final static double ReverseIntakeAutomaticSpeed = -0.15;
+        public final static double ReverseIntakeAutomaticSpeed = -0.1;
         public final static double ReverseDuration = 3; // Seconds
         public final static double TriggerDeadzone = 0.9;
         public final static double MotorSettledAmps = 18;
+
+        public final static double PivotY = 0;
+        
+        public final static double DistanceMultiplier = 0.1;
+        public final static double DistanceOffset = 0.61;
+
+        // public final static int RedTeamSpeakerTag = 4;
+        // public final static int BlueTeamSpeakerTag = 7;
+
+        public final static Translation3d RedTeamSpeaker = new Translation3d(8.062467,  1.442593, 2.051102);
+        public final static Translation3d BlueTeamSpeaker = new Translation3d(-8.062467,  1.442593, 2.051102);
+        
+    }
+    
+    public static final class pivotConstants {
+        
+        public final static double MaxSpeed = 1; //Percentage (1.0 = 100%)
+        public final static double Deadzone = 0.1;
+        public final static double EncoderOffset = 0.717;
+        public final static double MinAngle = -45; //Degrees
+        public final static double MaxAngle = 55;
+
+        public final static double AmpAngle = -45;
+        public final static double IntakeAngle = 55;
+        public final static double SpeakerAngle = 40;
+        
+        public final static double kP = 0.04; // Proportion
+        public final static double kI = 0.001; // Integral
+        public final static double kD = 0; // Derivative
+        public final static double kTolerance = 1; // Degrees
 
     }
 

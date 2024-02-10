@@ -21,13 +21,11 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.I2C.Port;
-import edu.wpi.first.wpilibj.XboxController.Axis;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -35,7 +33,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Shooter;
-// import frc.robot.subsystems.Telemetry;
+import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.Constants.driveConstants;
@@ -49,27 +47,28 @@ public class RobotContainer {
   public static AHRS navx;
   public static Pigeon2 pigeon2;
 
+
   // /* Setting up bindings for necessary control of the swerve drive platform */
 
-  // private final CommandXboxController joystick = new CommandXboxController(0); // My joystick
-  // public final static CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
+  private final CommandXboxController joystick = new CommandXboxController(0); // My joystick
+  public final static CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
 
-  // private final SwerveRequest.FieldCentric driveField = new SwerveRequest.FieldCentric() //Field oriented drive
+  private final SwerveRequest.FieldCentric driveField = new SwerveRequest.FieldCentric() //Field oriented drive
 
-  //     .withDeadband(driveConstants.MaxSpeed * driveConstants.SpeedDeadbandPercentage)
-  //     .withRotationalDeadband(driveConstants.MaxAngularRate * driveConstants.SpeedDeadbandPercentage) // Adds a deadzone to the robot's speed
-  //     .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+      .withDeadband(driveConstants.MaxSpeed * driveConstants.SpeedDeadbandPercentage)
+      .withRotationalDeadband(driveConstants.MaxAngularRate * driveConstants.SpeedDeadbandPercentage) // Adds a deadzone to the robot's speed
+      .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
-  //   private final SwerveRequest.RobotCentric driveRobot = new SwerveRequest.RobotCentric() //Field oriented drive
-  // .withDeadband(driveConstants.MaxSpeed * driveConstants.SpeedDeadbandPercentage)
-  // .withRotationalDeadband(driveConstants.MaxAngularRate * driveConstants.SpeedDeadbandPercentage) // Adds a deadzone to the robot's speed
-  // .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+    private final SwerveRequest.RobotCentric driveRobot = new SwerveRequest.RobotCentric() //Field oriented drive
+  .withDeadband(driveConstants.MaxSpeed * driveConstants.SpeedDeadbandPercentage)
+  .withRotationalDeadband(driveConstants.MaxAngularRate * driveConstants.SpeedDeadbandPercentage) // Adds a deadzone to the robot's speed
+  .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
 
 
-  // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-  // // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-  // public final static Telemetry logger = new Telemetry(driveConstants.MaxSpeed);
+  private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+  // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+  public final static Telemetry logger = new Telemetry(driveConstants.MaxSpeed);
   
   public static Vision vision = new Vision();
 
@@ -85,12 +84,13 @@ public class RobotContainer {
   public static boolean hasFunnyun = false;
   public static Command gotFunnyun, noFunnyun;
   public static Shooter shooter;
+  public static DutyCycleEncoder pivotCoder;
   public static DigitalInput proximitySensor = new DigitalInput(0);
 
-  public static CANSparkMax lPivotMotor; // Motor connected to arm pivot gearbox
-  public static CANSparkMax rPivotMotor; // Motor connected to arm pivot gearbox
+  public static CANSparkMax leftPivotMotor, rightPivotMotor; // Motor connected to arm pivot gearbox
   public static CANSparkFlex shooterMotor1, shooterMotor2; // Shoot motor closest to metal frame - blue wheels
   public static CANSparkFlex intakeMotor; // Shoot motor on the bottom - orange wheels connected with belt
+  public static int ShooterMode = 0; //0 is intake, 1 is speaker, and 2 is amp. 
   static ShooterManager setShooterSpeed;
 
 
@@ -102,32 +102,32 @@ public class RobotContainer {
     // /*-------------- CTRE CODE START ----------------*/
 
 
-    //   drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-    //       drivetrain.applyRequest(() -> 
-    //           driveField
-    //           .withVelocityX(-joystick.getLeftY() * driveConstants.MaxSpeed) // Drive forward with negative Y (forward)
-    //           .withVelocityY(-joystick.getLeftX() * driveConstants.MaxSpeed) // Drive left with negative X (left)
-    //           .withRotationalRate(-joystick.getRightX() * driveConstants.MaxAngularRate) // Drive counterclockwise with negative X (left)
-    //       ));
+      drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
+          drivetrain.applyRequest(() -> 
+              driveField
+              .withVelocityX(-joystick.getLeftY() * driveConstants.MaxSpeed) // Drive forward with negative Y (forward)
+              .withVelocityY(-joystick.getLeftX() * driveConstants.MaxSpeed) // Drive left with negative X (left)
+              .withRotationalRate(-joystick.getRightX() * driveConstants.MaxAngularRate) // Drive counterclockwise with negative X (left)
+          ));
 
-    //   joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
+      joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
 
-    //   joystick.rightBumper().whileTrue(
-    //       drivetrain.applyRequest(() ->
-    //       driveRobot
-    //           .withVelocityX(-joystick.getLeftY() * driveConstants.MaxSpeed) // Drive forward with negative Y (forward)
-    //           .withVelocityY(-joystick.getLeftX() * driveConstants.MaxSpeed) // Drive left with negative X (left)
-    //           .withRotationalRate(-joystick.getRightX() * driveConstants.MaxAngularRate) // Drive counterclockwise with negative X (left)
-    //     ));
+      joystick.rightBumper().whileTrue(
+          drivetrain.applyRequest(() ->
+          driveRobot
+              .withVelocityX(-joystick.getLeftY() * driveConstants.MaxSpeed) // Drive forward with negative Y (forward)
+              .withVelocityY(-joystick.getLeftX() * driveConstants.MaxSpeed) // Drive left with negative X (left)
+              .withRotationalRate(-joystick.getRightX() * driveConstants.MaxAngularRate) // Drive counterclockwise with negative X (left)
+        ));
 
-    //   // reset the field-centric heading on left bumper press
-    //   joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative()));
+      // reset the field-centric heading on left bumper press
+      joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative()));
 
-    //   if (Utils.isSimulation()) {
-    //     drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
-    //   }
+      if (Utils.isSimulation()) {
+        drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
+      }
 
-    //   drivetrain.registerTelemetry(logger::telemeterize);
+      drivetrain.registerTelemetry(logger::telemeterize);
 
 
     // /*-------------- CTRE CODE END ----------------*/
@@ -135,12 +135,12 @@ public class RobotContainer {
     gotFunnyun = new ParallelRaceGroup(
       new CenterFunnyun(shooterConstants.ReverseIntakeAutomaticSpeed),
       new WaitCommand(shooterConstants.ReverseDuration)
-    );
+    ); // Shoves the funnyun back after recieving it. 
 
     noFunnyun = new SequentialCommandGroup(
       new WaitCommand(0.5),
       new NoFunnyun()
-    );
+    ); // Waits until after the funnyun has cleared the flywheels to report that there is no longer a funnyun
     
 
     shooter.setDefaultCommand(new ShooterManager());
@@ -163,16 +163,18 @@ public class RobotContainer {
     );
   }
 
-  // public void driveChassisSpeeds(ChassisSpeeds speeds) {
-  //   drivetrain.applyRequest(() -> 
-  //             driveField
-  //             .withVelocityX(speeds.vxMetersPerSecond)
-  //             .withVelocityY(speeds.vyMetersPerSecond)
-  //             .withRotationalRate(speeds.omegaRadiansPerSecond)
-  //   );
-  // }
+  public void driveChassisSpeeds(ChassisSpeeds speeds) {
+    drivetrain.applyRequest(() -> 
+              driveField
+              .withVelocityX(speeds.vxMetersPerSecond)
+              .withVelocityY(speeds.vyMetersPerSecond)
+              .withRotationalRate(speeds.omegaRadiansPerSecond)
+    );
+  }
 
   public RobotContainer() {
+
+    
     ///// INPUTS \\\\\
     xbox2A = new JoystickButton(xbox2, 1);
     xbox2B = new JoystickButton(xbox2, 2);
@@ -181,39 +183,41 @@ public class RobotContainer {
     ///// AUTO \\\\\
     pigeon2 = new Pigeon2(0);
     navx = new AHRS(Port.kMXP);
-
-    // AutoBuilder.configureHolonomic(
-
-    //   logger::getPose,
-    //   drivetrain::seedFieldRelative,
-    //   this::getChassisSpeeds,
-    //   this::driveChassisSpeeds,
-    //   driveConstants.config,
-
-    //   () -> { //Flip the path if opposite team?
-    //     var alliance = DriverStation.getAlliance();
-    //     if (alliance.isPresent()) {
-    //       return alliance.get() == DriverStation.Alliance.Red;
-    //     }
-    //     return false;
-    //   },
-
-    //   drivetrain
-
-    // );
-
-
-
+    
+    AutoBuilder.configureHolonomic(
+      
+      logger::getPose,
+      drivetrain::seedFieldRelative,
+      this::getChassisSpeeds,
+      this::driveChassisSpeeds,
+      driveConstants.config,
+      
+      () -> { //Flip the path if opposite team?
+        var alliance = DriverStation.getAlliance();
+        if (alliance.isPresent()) {
+          return alliance.get() == DriverStation.Alliance.Red;
+        }
+        return false;
+      },
+      
+      drivetrain
+      
+    );
+      
+      
+      
     ///// ARM \\\\\
-
-
-    // lPivotMotor = new CANSparkMax(13, MotorType.kBrushed);
-    // rPivotMotor = new CANSparkMax(14, MotorType.kBrushed);
+      
+    pivotCoder = new DutyCycleEncoder(2);
+    leftPivotMotor = new CANSparkMax(13, MotorType.kBrushless);
+    rightPivotMotor = new CANSparkMax(14, MotorType.kBrushless);
     shooterMotor1 = new CANSparkFlex(1, MotorType.kBrushless);
     shooterMotor2 = new CANSparkFlex(2, MotorType.kBrushless);
     intakeMotor = new CANSparkFlex(3, MotorType.kBrushless);
     shooter = new Shooter();
-
+      
+    leftPivotMotor.setIdleMode(IdleMode.kBrake);
+    rightPivotMotor.setIdleMode(IdleMode.kBrake);
     shooterMotor1.setIdleMode(IdleMode.kBrake);
     shooterMotor2.setIdleMode(IdleMode.kBrake);
     intakeMotor.setIdleMode(IdleMode.kBrake);
