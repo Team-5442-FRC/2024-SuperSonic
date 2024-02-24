@@ -9,21 +9,21 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import com.kauailabs.navx.frc.AHRS;
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.I2C.Port;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
@@ -39,8 +40,11 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.Constants.driveConstants;
 import frc.robot.Constants.shooterConstants;
 import frc.robot.commands.CenterFunnyun;
+import frc.robot.commands.ClimbCommand;
 import frc.robot.commands.NoFunnyun;
+import frc.robot.commands.ResetClimberCoder;
 import frc.robot.commands.ShooterManager;
+import frc.robot.commands.ToggleClimberLimits;
 
 public class RobotContainer {
 
@@ -72,6 +76,8 @@ public class RobotContainer {
   
   public static Vision vision = new Vision();
 
+  //// Pivor \\\\\
+  public static PIDController chassisPID;
 
   ///// OPERATOR CONTROLLER \\\\\
   public static XboxController xbox2 = new XboxController(1); // Operator joystick
@@ -85,13 +91,20 @@ public class RobotContainer {
   public static Command gotFunnyun, noFunnyun;
   public static Shooter shooter;
   public static DutyCycleEncoder pivotCoder;
-  public static DigitalInput proximitySensor = new DigitalInput(0);
+  public static DigitalInput FrontProximitySensor = new DigitalInput(0);
+  public static DigitalInput BackProximitySensor = new DigitalInput(1);//Electric Boogaloo
 
   public static CANSparkMax leftPivotMotor, rightPivotMotor; // Motor connected to arm pivot gearbox
   public static CANSparkFlex shooterMotor1, shooterMotor2; // Shoot motor closest to metal frame - blue wheels
   public static CANSparkFlex intakeMotor; // Shoot motor on the bottom - orange wheels connected with belt
   public static int ShooterMode = 0; //0 is intake, 1 is speaker, and 2 is amp. 
   static ShooterManager setShooterSpeed;
+
+  ///// CLIMBER \\\\\
+  public static CANSparkMax climberMotor;
+  public static DutyCycleEncoder climberCoder;
+  public static boolean climberLimits = true;
+  public static Climber climber;
 
 
 
@@ -105,19 +118,23 @@ public class RobotContainer {
       drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
           drivetrain.applyRequest(() -> 
               driveField
-              .withVelocityX(-joystick.getLeftY() * driveConstants.MaxSpeed) // Drive forward with negative Y (forward)
-              .withVelocityY(-joystick.getLeftX() * driveConstants.MaxSpeed) // Drive left with negative X (left)
-              .withRotationalRate(-joystick.getRightX() * driveConstants.MaxAngularRate) // Drive counterclockwise with negative X (left)
-          ));
+              .withVelocityX(-Math.pow(Deadzone(joystick.getLeftY()), 3) * driveConstants.MaxSpeed * (1 - (joystick.getLeftTriggerAxis() * 0.8))) // Drive forward with negative Y (forward)
+              .withVelocityY(-Math.pow(Deadzone(joystick.getLeftX()), 3) * driveConstants.MaxSpeed * (1 - (joystick.getLeftTriggerAxis() * 0.8))) // Drive left with negative X (left)
+              .withRotationalRate(-Math.pow(Deadzone(joystick.getRightX()), 3) * driveConstants.MaxAngularRate) // Drive counterclockwise with negative X (left)
+      ));
+
+
+
+
 
       joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
 
       joystick.rightBumper().whileTrue(
           drivetrain.applyRequest(() ->
           driveRobot
-              .withVelocityX(-joystick.getLeftY() * driveConstants.MaxSpeed) // Drive forward with negative Y (forward)
-              .withVelocityY(-joystick.getLeftX() * driveConstants.MaxSpeed) // Drive left with negative X (left)
-              .withRotationalRate(-joystick.getRightX() * driveConstants.MaxAngularRate) // Drive counterclockwise with negative X (left)
+              .withVelocityX(Math.pow(Deadzone(joystick.getLeftY()), 3) * driveConstants.MaxSpeed * (1 - (joystick.getLeftTriggerAxis() * 0.8))) // Drive forward with negative Y (forward)
+              .withVelocityY(Math.pow(Deadzone(joystick.getLeftX()), 3) * driveConstants.MaxSpeed * (1 - (joystick.getLeftTriggerAxis() * 0.8))) // Drive left with negative X (left)
+              .withRotationalRate(Math.pow(Deadzone(joystick.getRightX()), 3) * driveConstants.MaxAngularRate) // Drive counterclockwise with negative X (left)
         ));
 
       // reset the field-centric heading on left bumper press
@@ -128,6 +145,8 @@ public class RobotContainer {
       }
 
       drivetrain.registerTelemetry(logger::telemeterize);
+
+      
 
 
     // /*-------------- CTRE CODE END ----------------*/
@@ -144,6 +163,7 @@ public class RobotContainer {
     
 
     shooter.setDefaultCommand(new ShooterManager());
+    climber.setDefaultCommand(new ClimbCommand());
     
     
     //What we want
@@ -153,6 +173,11 @@ public class RobotContainer {
 
 
     
+  }
+
+  public static double Deadzone(double speed) {
+    if (Math.abs(speed) > driveConstants.ControllerDeadzone) return speed;
+    return 0;
   }
 
   public ChassisSpeeds getChassisSpeeds() {
@@ -174,7 +199,17 @@ public class RobotContainer {
 
   public RobotContainer() {
 
-    
+    //// Pivor \\\\\
+    chassisPID = driveConstants.chassisPID;
+    chassisPID.setTolerance(driveConstants.ChassisPidTolerence);
+
+    ///// CLIMBER \\\\\
+    climberCoder = new DutyCycleEncoder(4);
+    climberMotor = new CANSparkMax(15 , MotorType.kBrushless);
+    climber = new Climber();
+    SmartDashboard.putData("Reset Climber", new ResetClimberCoder());
+    SmartDashboard.putData("Toggle Robot Limits", new ToggleClimberLimits());
+
     ///// INPUTS \\\\\
     xbox2A = new JoystickButton(xbox2, 1);
     xbox2B = new JoystickButton(xbox2, 2);
@@ -184,25 +219,25 @@ public class RobotContainer {
     pigeon2 = new Pigeon2(0);
     navx = new AHRS(Port.kMXP);
     
-    AutoBuilder.configureHolonomic(
+    // AutoBuilder.configureHolonomic(
       
-      logger::getPose,
-      drivetrain::seedFieldRelative,
-      this::getChassisSpeeds,
-      this::driveChassisSpeeds,
-      driveConstants.config,
+    //   logger::getPose,
+    //   drivetrain::seedFieldRelative,
+    //   this::getChassisSpeeds,
+    //   this::driveChassisSpeeds,
+    //   driveConstants.config,
       
-      () -> { //Flip the path if opposite team?
-        var alliance = DriverStation.getAlliance();
-        if (alliance.isPresent()) {
-          return alliance.get() == DriverStation.Alliance.Red;
-        }
-        return false;
-      },
+    //   () -> { //Flip the path if opposite team?
+    //     var alliance = DriverStation.getAlliance();
+    //     if (alliance.isPresent()) {
+    //       return alliance.get() == DriverStation.Alliance.Red;
+    //     }
+    //     return false;
+    //   },
       
-      drivetrain
+    //   drivetrain
       
-    );
+    // ); //TODO fix auto 
       
       
       
@@ -217,7 +252,7 @@ public class RobotContainer {
     shooter = new Shooter();
       
     leftPivotMotor.setIdleMode(IdleMode.kBrake);
-    rightPivotMotor.setIdleMode(IdleMode.kBrake);
+    rightPivotMotor.setIdleMode(IdleMode.kBrake); 
     shooterMotor1.setIdleMode(IdleMode.kBrake);
     shooterMotor2.setIdleMode(IdleMode.kBrake);
     intakeMotor.setIdleMode(IdleMode.kBrake);

@@ -7,26 +7,27 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 
-public class CenterFunnyun extends Command {
-
-  double speed;
-
-  /** Creates a new SetIntakeSpeed. */
-  public CenterFunnyun(double speed) {
+public class ToggleClimberLimits extends Command {
+  /** Creates a new ToggleClimberLimits. */
+  public ToggleClimberLimits() {
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(RobotContainer.shooter);
-    this.speed = speed;
+    addRequirements(RobotContainer.climber);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+
+    if(RobotContainer.climberLimits) {
+      RobotContainer.climberLimits = false;
+    } else {
+      RobotContainer.climberLimits = true;
+    }
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {
-    RobotContainer.shooter.setIntakeSpeed(speed);
-  }
+  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override
@@ -35,6 +36,6 @@ public class CenterFunnyun extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return RobotContainer.FrontProximitySensor.get();
+    return true;
   }
 }

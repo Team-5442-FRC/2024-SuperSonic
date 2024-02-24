@@ -81,9 +81,9 @@ public class Vision extends SubsystemBase {
       Rotation2d.fromRadians(fieldRelative[4])
     );
 
-    if(target) {
-      // RobotContainer.drivetrain.addVisionMeasurement(fieldPose, logger.getTime());
-    }
+    // if(target) {
+    //   RobotContainer.drivetrain.addVisionMeasurement(fieldPose, logger.getTime());
+    // }
 
     // SmartDashboard.putNumber("Robot Field Position X", logger.getPose().getX());
     // SmartDashboard.putNumber("Robot Field Position Y",  logger.getPose().getY());

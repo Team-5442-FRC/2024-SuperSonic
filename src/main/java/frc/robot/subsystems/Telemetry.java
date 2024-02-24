@@ -108,13 +108,4 @@ public class Telemetry {
             SmartDashboard.putData("Module " + i, m_moduleMechanisms[i]);
         }
     }
-
-    public Pose2d getPose() {
-        return this.m_lastPose;
-    }
-    
-    public double getTime() {
-        return lastTime;
-    }
-
 }
