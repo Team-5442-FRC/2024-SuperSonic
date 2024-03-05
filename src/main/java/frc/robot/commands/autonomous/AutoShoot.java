@@ -2,42 +2,46 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.autonomous;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 
-public class CenterFunnyun extends Command {
-
-  double speed;
-
-  /** Creates a new SetIntakeSpeed. */
-  public CenterFunnyun(double speed) {
+public class AutoShoot extends Command {
+  boolean isFinished = false;
+  /** Creates a new AutoShoot. */
+  
+  public AutoShoot() {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(RobotContainer.shooter);
-    this.speed = speed;
-    // RobotContainer.xbox2.setRumble(RumbleType.kBothRumble, 1);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+
+
+
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    RobotContainer.shooter.setIntakeSpeed(speed);
+
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    // RobotContainer.xbox2.setRumble(RumbleType.kBothRumble, 0);
+    RobotContainer.ShooterMode = 0;
+    RobotContainer.revOverride = false;
+    RobotContainer.shootOverride = false;
+    isFinished = true;
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return RobotContainer.FrontProximitySensor.get();
+    return isFinished;
   }
 }

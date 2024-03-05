@@ -17,6 +17,7 @@ public class ShooterManager extends Command {
   boolean kIsFunnyun = true;
   boolean backTripped = false;
   double targetAngle = pivotConstants.IntakeAngle;
+  double climberOffset = 0;
 
   /** Creates a new setShooterSpeed. */
   public ShooterManager() {
@@ -35,15 +36,14 @@ public class ShooterManager extends Command {
   @Override
   public void execute() {
 
-
     speed = 0;
 
     //Shooter Code
 
-    if(RobotContainer.xbox2.getRightTriggerAxis() > shooterConstants.TriggerDeadzone && RobotContainer.hasFunnyun) {
+    if((RobotContainer.xbox2.getRightTriggerAxis() > shooterConstants.TriggerDeadzone || RobotContainer.revOverride) && RobotContainer.hasFunnyun) {
 
       if(RobotContainer.ShooterMode == 1) {
-        RobotContainer.shooter.setShooterSpeed(0.6); //TODO set back to getSpeakerSpeed
+        RobotContainer.shooter.setShooterSpeed(RobotContainer.shooter.getSpeakerSpeed());
       } else if (RobotContainer.ShooterMode == 2) {
         RobotContainer.shooter.setShooterSpeed(shooterConstants.AmpSpeed);
       } else RobotContainer.shooter.setShooterSpeed(0);
@@ -52,11 +52,11 @@ public class ShooterManager extends Command {
       RobotContainer.shooter.setShooterSpeed(0);
     }
 
-    if(RobotContainer.xbox2A.getAsBoolean() && RobotContainer.hasFunnyun && (RobotContainer.xbox2.getRightTriggerAxis() > shooterConstants.TriggerDeadzone || RobotContainer.xbox2.getRightBumper()) && RobotContainer.shooter.shooterMotor1.getOutputCurrent() <= shooterConstants.MotorSettledAmps ) {
+    if((RobotContainer.xbox2A.getAsBoolean() || RobotContainer.shootOverride) && RobotContainer.hasFunnyun && (RobotContainer.xbox2.getRightTriggerAxis() > shooterConstants.TriggerDeadzone || RobotContainer.shootOverride) && RobotContainer.shooter.shooterMotor1.getOutputCurrent() <= shooterConstants.MotorSettledAmps ) {
       speed = shooterConstants.IntakeSpeed;
     }
 
-    if(!kIsFunnyun && RobotContainer.FrontProximitySensor.get() && RobotContainer.xbox2.getRightTriggerAxis() > shooterConstants.TriggerDeadzone && RobotContainer.xbox2A.getAsBoolean()) {
+    if(!kIsFunnyun && RobotContainer.FrontProximitySensor.get() && (RobotContainer.xbox2.getRightTriggerAxis() > shooterConstants.TriggerDeadzone || RobotContainer.revOverride) && (RobotContainer.xbox2A.getAsBoolean() || RobotContainer.shootOverride)) {
       RobotContainer.noFunnyun.schedule();
       kIsFunnyun = true;
     } else {
@@ -65,7 +65,7 @@ public class ShooterManager extends Command {
 
 
     //Intake Code
-    if(RobotContainer.xbox2B.getAsBoolean() && !RobotContainer.hasFunnyun) {
+    if((RobotContainer.xbox2B.getAsBoolean() || RobotContainer.intakeOverride) && !RobotContainer.hasFunnyun) {
       speed = shooterConstants.IntakeSpeed;
     } else if(RobotContainer.xbox2Y.getAsBoolean()) {
       speed = shooterConstants.ReverseIntakeSpeed;
@@ -75,6 +75,12 @@ public class ShooterManager extends Command {
 
     if(RobotContainer.hasFunnyun && speed < 0) {
       RobotContainer.hasFunnyun = false;
+    }
+
+    if(RobotContainer.hasFunnyun) {
+      RobotContainer.led.setLEDs(255,255,255);
+    } else {
+      RobotContainer.led.setLEDs(0, 0, 0);
     }
 
     // if(speed > 0 && RobotContainer.hasFunnyun == false && !BackProximitySensor.get() && !FrontProximitySensor.get()) {
@@ -111,20 +117,33 @@ public class ShooterManager extends Command {
 
     // if (Math.abs(RobotContainer.xbox2.getLeftY()) >= shooterConstants.TriggerDeadzone) targetAngle += RobotContainer.xbox2.getLeftY();
 
+
+
+    // targetAngle += RobotContainer.Deadzone(RobotContainer.xbox2.getLeftY());
+    if(RobotContainer.ShooterMode == 0) {
+      targetAngle = pivotConstants.IntakeAngle; //Intake Mode 
+      climberOffset = 0;
+    } else if (RobotContainer.ShooterMode == 2) {
+      targetAngle = pivotConstants.AmpAngle + climberOffset; //Amp Mode
+      climberOffset -= RobotContainer.Deadzone(RobotContainer.xbox2.getLeftY());
+      // targetAngle += RobotContainer.xbox2.getLeftY();
+    } else if (RobotContainer.ShooterMode == 1) {
+      climberOffset = 0;
+      targetAngle = RobotContainer.shooter.calculatePivotAngle(); //Soeaj (AKA Speaker in Tallonese) Mode TODO UNCOMMENT
+    }
+
     if (targetAngle >= pivotConstants.MaxAngle) {
       targetAngle = pivotConstants.MaxAngle;
     } else if (targetAngle <= pivotConstants.MinAngle) {
       targetAngle = pivotConstants.MinAngle;
     }
 
-    if(RobotContainer.ShooterMode == 0) {
-      targetAngle = pivotConstants.IntakeAngle; //Intake Mode 
-    } else if (RobotContainer.ShooterMode == 2) {
-      targetAngle = pivotConstants.AmpAngle; //Amp Mode
-    } else if (RobotContainer.ShooterMode == 1) {
-      targetAngle = RobotContainer.shooter.calculatePivotAngle(); //Soeaj (AKA Speaker in Tallonese) Mode
+    if(climberOffset <= pivotConstants.MinAngle - pivotConstants.AmpAngle) {
+      climberOffset = pivotConstants.MinAngle - pivotConstants.AmpAngle;
+    } else if(climberOffset + pivotConstants.AmpAngle >= pivotConstants.MaxAngle ) {
+      climberOffset = pivotConstants.MaxAngle - pivotConstants.AmpAngle;
     }
-    
+
     RobotContainer.shooter.pivotToAngle(targetAngle);
 
 

@@ -16,7 +16,7 @@ public class Constants {
 
     public static final class driveConstants {
 
-        public final static double MaxSpeed = 6; //Max targeted speed in M/S 
+        public final static double MaxSpeed = 15; //Max targeted speed in M/S 
         public final static double MaxAngularRate = 1.5 * Math.PI; //Max targeted rotations / second -- 3/4ths of a rotation for now
         public final static double MaxAcceleration = 2; //Max acceleration in M/s/s;
         public final static double MaxAngularAcceleration = 4 * Math.PI;
@@ -27,12 +27,15 @@ public class Constants {
         public final static PIDController chassisPID = new PIDController(0.01, 0, 0);
         public final static double ChassisPidTolerence = Math.PI/180;
 
+        public final static double ChassisModulePosX = 13.375; //Middle of robot to module left/right position
+        public final static double ChassisModulePosY = 10.375; //Middle of robot to module front/back position
+
         public static final HolonomicPathFollowerConfig config = new HolonomicPathFollowerConfig(
-            new PIDConstants(0,0,0),
-            new PIDConstants(0,0,0),
-            0,
-            0,
-            new ReplanningConfig() //TODO set these properly
+            new PIDConstants(1,0,0),
+            new PIDConstants(1,0,0),
+            MaxSpeed,
+            Math.sqrt((ChassisModulePosX * ChassisModulePosX) + (ChassisModulePosY * ChassisModulePosY)),
+            new ReplanningConfig()
         );
 
     }
@@ -46,16 +49,18 @@ public class Constants {
         public final static double IntakeSpeed = 0.35;
         public final static double ReverseIntakeSpeed = -0.15;
         public final static double ReverseIntakeAutomaticSpeed = -0.1;
-        public final static double ReverseDuration = 3; // Seconds
+        public final static double ReverseDuration = 0.5; // Seconds
         public final static double TriggerDeadzone = 0.9;
-        public final static double MotorSettledAmps = 18;
+        public final static double MotorSettledAmps = 22;
 
         public final static double VisionUpdateFrequency = 0.5; // Seconds
 
-        public final static double PivotY = 2.051102 - 0.28 + 0.25; // Height from pivot (hexshaft) to speaker; Meters
+        public final static double PivotY = 2.051102 - 0.28 + 0.2; // Height from pivot (hexshaft) to speaker; Meters
         public final static double kA = 0; // Quadratic x^2
         public final static double kB = 0.2; // Quadratic x
         public final static double kC = -0.6; // Quadratic constant
+
+        public final static PIDController speakerPID = new PIDController(0.01, 0, 0);
         
         public final static double DistanceMultiplier = 0.4; // For increasing shoot speed over distance
         public final static double DistanceOffset = 2;
@@ -63,21 +68,21 @@ public class Constants {
         // public final static int RedTeamSpeakerTag = 4;
         // public final static int BlueTeamSpeakerTag = 7;
 
-        public final static Translation3d RedTeamSpeaker = new Translation3d(8.062467,  1.442593, 2.051102);
-        public final static Translation3d BluTeamSpeaker = new Translation3d(-8.062467,  1.442593, 2.051102);
+        public final static Translation3d RedTeamSpeaker = new Translation3d(16.579342,  5.547868, 2.051102);
+        public final static Translation3d BluTeamSpeaker = new Translation3d(-0.0381,   5.547868, 2.051102);
         
     }
     
     public static final class pivotConstants {
         
         public final static double MaxSpeed = 1; //Percentage (1.0 = 100%)
-        public final static double Deadzone = 0.1;
+        public final static double Tolerance = 3;
         public final static double EncoderOffset = -33;
         public final static double MinAngle = -45; //Degrees
-        public final static double MaxAngle = 55;
+        public final static double MaxAngle = 65;
 
         public final static double AmpAngle = -45;
-        public final static double IntakeAngle = 60;
+        public final static double IntakeAngle = 65;
         public final static double SpeakerAngle = 40;
         
         public final static double kP = 0.02; // Proportion
@@ -96,8 +101,12 @@ public class Constants {
         // public final static double MaxCycles = 0; // Maximum amount of encoder cycles (360 degrees per cycle)
         // public final static double MaxDegrees = 0; // Maximum value of encoder degrees
         // public final static double CycleTolerance = 180; // How many degrees have to change to be considered a cycle
-        public final static double MinDistance = -100;
-        public final static double MaxDistance = 100;
+        public final static double MinDistance = 0;
+        public final static double MaxDistance = 16.4;
+
+    }
+
+    public static final class autonomousConstants {
 
     }
 

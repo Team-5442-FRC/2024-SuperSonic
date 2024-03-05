@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.climberConstants;
@@ -31,9 +32,9 @@ public class Climber extends SubsystemBase {
     speed = -speed;
 
 
-    if(speed > 0 && getClimberDistance() >= climberConstants.MaxDistance) {
+    if(speed > 0 && getClimberDistance() >= climberConstants.MaxDistance && RobotContainer.climberLimits) {
       RobotContainer.climberMotor.set(0);
-    } else if (speed < 0 && getClimberDistance() <= climberConstants.MinDistance) {
+    } else if (speed < 0 && getClimberDistance() <= climberConstants.MinDistance && RobotContainer.climberLimits) {
       RobotContainer.climberMotor.set(0);
     } else {
       RobotContainer.climberMotor.set(speed);
@@ -53,11 +54,11 @@ public class Climber extends SubsystemBase {
   }
 
   public double getClimberDistance() {
-    return climberCoder.getDistance();
+    return -climberCoder.getDistance(); //Goes negative
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    SmartDashboard.putNumber("Climber Position", getClimberDistance());
   }
 }

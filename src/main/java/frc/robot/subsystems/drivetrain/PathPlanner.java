@@ -17,6 +17,7 @@ import frc.robot.Constants.driveConstants;
 
 public class PathPlanner extends SubsystemBase {
   /** Creates a new PathPlanner. */
+
   public PathPlanner() {}
 
   public PathPlannerPath getToPoint(Pose2d initPose, Pose2d desiredPose) {

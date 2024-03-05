@@ -4,11 +4,15 @@
 
 package frc.robot.subsystems.vision;
 
+import java.util.Optional;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
@@ -19,6 +23,8 @@ public class Vision extends SubsystemBase {
   boolean target;
 
   private Pose2d fieldPose, localPose;
+
+  private long targetID;
 
   NetworkTableInstance inst = NetworkTableInstance.getDefault();
   NetworkTable visionTable;
@@ -46,13 +52,24 @@ public class Vision extends SubsystemBase {
     return this.localPose;
   }
   
-
+  public boolean isFacingSpeaker() {
+    Optional<Alliance> ally = DriverStation.getAlliance();
+    if(ally.get() == Alliance.Blue && (targetID == 7 || targetID == 8)) return true; // If on Blu and speaker tags in view
+    else if(ally.get() == Alliance.Red && (targetID == 3 || targetID == 4)) return true; // If on Red and speaker tags in view
+   
+    return false; // Otherwise, return false
+  }
 
 
   @Override
   public void periodic() {
+    targetID = visionTable.getEntry("tid").getInteger(-1); // Get ID of current April Tag
 
     target = visionTable.getEntry("tv").getBoolean(false);
+
+    Optional<Alliance> ally = DriverStation.getAlliance();
+    if(ally.get() == Alliance.Blue) visionTable.getEntry("priorityid").setInteger(7); // If on Blu and speaker tags in view
+    else if(ally.get() == Alliance.Red) visionTable.getEntry("priorityid").setInteger(4); //  Red and speaker tags in view
 
     //Get robot relative positional data
 
@@ -63,7 +80,7 @@ public class Vision extends SubsystemBase {
         targetRelative[0],
         targetRelative[2]
       ),
-      Rotation2d.fromRadians(targetRelative[4])
+      Rotation2d.fromDegrees(targetRelative[5])
     );
 
     this.target = (visionTable.getEntry("tv").getDouble(0) == 1);
@@ -75,21 +92,13 @@ public class Vision extends SubsystemBase {
 
     this.fieldPose = new Pose2d(
       new Translation2d(
-        fieldRelative[0],
-        fieldRelative[1]
+        fieldRelative[0] + 0.34,
+        fieldRelative[1] + 0.65
       ),
-      Rotation2d.fromRadians(fieldRelative[4])
+      Rotation2d.fromDegrees(fieldRelative[5])
     );
-
-    // if(target) {
-    //   RobotContainer.drivetrain.addVisionMeasurement(fieldPose, logger.getTime());
-    // }
 
     // SmartDashboard.putNumber("Robot Field Position X", logger.getPose().getX());
     // SmartDashboard.putNumber("Robot Field Position Y",  logger.getPose().getY());
-    SmartDashboard.putNumber("Robot Position X", getFieldPose().getX());
-    SmartDashboard.putNumber("Robot Position Y", getFieldPose().getY());
-    SmartDashboard.putNumber("Robot Angle", getFieldPose().getRotation().getRadians());
-
   }
 }

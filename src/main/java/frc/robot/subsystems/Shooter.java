@@ -28,7 +28,7 @@ public class Shooter extends SubsystemBase {
   public static PIDController PID;
   public static double targetAngle;
 
-  public static Translation3d robotFieldPosition, speakerPosition;
+  public static Translation3d speakerPosition;
 
   
   /** Creates a new Pivot. */
@@ -42,12 +42,11 @@ public class Shooter extends SubsystemBase {
     PID = new PIDController(pivotConstants.kP, pivotConstants.kI, pivotConstants.kD);
     PID.setTolerance(pivotConstants.kTolerance); // Degrees
     targetAngle = pivotConstants.IntakeAngle;
-    robotFieldPosition = new Translation3d();
     speakerPosition = shooterConstants.RedTeamSpeaker;
 
   }
   
-  public static double getAngle() {
+  public double getAngle() {
     double kAngle = (-pivotCoder.getAbsolutePosition() * 360) + pivotConstants.EncoderOffset;
     if (kAngle > 180) kAngle -= 360;
     if (kAngle < -180) kAngle += 360;
@@ -103,29 +102,26 @@ public class Shooter extends SubsystemBase {
   public double calculatePivotAngle() { // Refer to Nick's Drawing
     double R = pivotConstants.PivotRadius; // Constant
     double H = shooterConstants.PivotY; // Constant
-    double xDist = RobotContainer.vision.getFieldPose().getX() - speakerPosition.getX(); // Variable, x distance from pivot (hexshaft) to base of speaker
-    double yDist = RobotContainer.vision.getFieldPose().getY() - speakerPosition.getY(); // Variable, y distance from pivot (hexshaft) to base of speaker
+    double xDist;
+    double yDist;
+    // xDist = RobotContainer.vision.getFieldPose().getX() - speakerPosition.getX(); // Variable, x distance from pivot (hexshaft) to base of speaker
+    // yDist = RobotContainer.vision.getFieldPose().getY() - speakerPosition.getY(); // Variable, y distance from pivot (hexshaft) to base of speaker
+    xDist = RobotContainer.odometry.getPose().getX() - speakerPosition.getX(); // Variable, x distance from pivot (hexshaft) to base of speaker
+    yDist = RobotContainer.odometry.getPose().getY() - speakerPosition.getY(); // Variable, y distance from pivot (hexshaft) to base of speaker
     double x = Math.sqrt((xDist * xDist) + (yDist * yDist)); // Variable, hypotenuse distance to base of speaker
     H += getHeightOffset(x);
     double a = (R * ((R * x) + (H * Math.sqrt((x * x) + (H * H) - (R * R)))))/((H * H) - (R*R)); // ouchy oof my math
-
-    SmartDashboard.putNumber("Distance to Speaker", x);
-    return Math.asin(R/a) * (180 / Math.PI); // maffs ^-^
-
-    // double kY = speakerPosition.getZ() - robotFieldPosition.getZ(); //Refer  to angle calculation drawing for what these variables mean
-    // double kZ = robotFieldPosition.getDistance(speakerPosition);
-
-    // double kAngle1 = (Math.acos(0.61 / kZ)) * (180/Math.PI); //Temporary angle values as per drawing, 0.61 is 2ft in meters, or the distance from the pivot to the imaginary plane made between the two flywheels
-    // double kAngle2 = (Math.asin(kY / kZ)) * (180/Math.PI);
-
-    // return 0 - (kAngle1 + kAngle2);
+    if(RobotContainer.vision.target()) {
+      return Math.asin(R/a) * (180 / Math.PI); // maffs ^-^
+    }
+    return pivotConstants.SpeakerAngle;
   }
 
   public double calculateChassisAngle() { //what angle to point the shooter at
-    double kX = speakerPosition.getX() - robotFieldPosition.getX();
-    double kY = speakerPosition.getY() - robotFieldPosition.getY();
-
-    return -Math.atan(kX / kY);
+    double kX = RobotContainer.vision.getFieldPose().getX() - speakerPosition.getX();
+    double kY = RobotContainer.vision.getFieldPose().getY() - speakerPosition.getY();
+    
+    return -Math.atan(kY / kX) * -40; //* (180 / Math.PI) * 10;
   }
 
   public double getSpeakerSpeed() { //Get the speed of the flywheels for the distance to the speaker
@@ -162,11 +158,10 @@ public class Shooter extends SubsystemBase {
 
     // This method will be called once per scheduler run
     SmartDashboard.putBoolean("Has Funnyun?", RobotContainer.hasFunnyun);
-    // SmartDashboard.putNumber("Speaker Robot Angle", calculateChassisAngle());
+    SmartDashboard.putNumber("Speaker Robot Angle", calculateChassisAngle());
     SmartDashboard.putNumber("Speaker Pivot Angle", calculatePivotAngle());
     SmartDashboard.putNumber("Pivot Angle", getAngle());
-    SmartDashboard.putBoolean("backProxSensor", RobotContainer.BackProximitySensor.get());
-    SmartDashboard.putBoolean("frontProxSensor", RobotContainer.FrontProximitySensor.get());
-    robotFieldPosition = new Translation3d(RobotContainer.vision.getLocalPose().getX(), RobotContainer.vision.getLocalPose().getX(), shooterConstants.PivotY); 
+    // SmartDashboard.putBoolean("Front PS", RobotContainer.FrontProximitySensor.get());
+    // SmartDashboard.putBoolean("Back PS", RobotContainer.BackProximitySensor.get());
   }
 }

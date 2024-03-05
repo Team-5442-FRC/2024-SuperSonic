@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -10,6 +9,7 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -46,7 +46,7 @@ public class Telemetry {
 
     /* Keep a reference of the last pose to calculate the speeds */
     private Pose2d m_lastPose = new Pose2d();
-    private double lastTime = Utils.getCurrentTimeSeconds();
+    private double lastTime = Timer.getFPGATimestamp();
 
     /* Mechanisms to represent the swerve module states */
     private final Mechanism2d[] m_moduleMechanisms = new Mechanism2d[] {
@@ -86,7 +86,7 @@ public class Telemetry {
         });
 
         /* Telemeterize the robot's general speeds */
-        double currentTime = Utils.getCurrentTimeSeconds();
+        double currentTime = Timer.getFPGATimestamp();
         double diffTime = currentTime - lastTime;
         lastTime = currentTime;
         Translation2d distanceDiff = pose.minus(m_lastPose).getTranslation();

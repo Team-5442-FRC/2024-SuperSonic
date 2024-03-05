@@ -4,11 +4,15 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
-import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -20,12 +24,11 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -33,11 +36,14 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Climber;
+import frc.robot.subsystems.Odometry;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Telemetry;
 import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
+import frc.robot.subsystems.drivetrain.PathPlanner;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.Constants.driveConstants;
+import frc.robot.Constants.pivotConstants;
 import frc.robot.Constants.shooterConstants;
 import frc.robot.commands.CenterFunnyun;
 import frc.robot.commands.ClimbCommand;
@@ -48,22 +54,25 @@ import frc.robot.commands.ToggleClimberLimits;
 
 public class RobotContainer {
 
-  public static AHRS navx;
+  public static PIDController speakerPID = shooterConstants.speakerPID; // PID loop for speaker auto rotate
+
   public static Pigeon2 pigeon2;
+  public static TalonFX dFR, dFL, dBL, dBR;
+  public static CANcoder cFR, cFL, cBL, cBR;
 
 
   // /* Setting up bindings for necessary control of the swerve drive platform */
 
-  private final CommandXboxController joystick = new CommandXboxController(0); // My joystick
+  public final static CommandXboxController joystick = new CommandXboxController(0); // My joystick
   public final static CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
 
-  private final SwerveRequest.FieldCentric driveField = new SwerveRequest.FieldCentric() //Field oriented drive
+  public final static SwerveRequest.FieldCentric driveField = new SwerveRequest.FieldCentric() //Field oriented drive
 
       .withDeadband(driveConstants.MaxSpeed * driveConstants.SpeedDeadbandPercentage)
       .withRotationalDeadband(driveConstants.MaxAngularRate * driveConstants.SpeedDeadbandPercentage) // Adds a deadzone to the robot's speed
       .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
-    private final SwerveRequest.RobotCentric driveRobot = new SwerveRequest.RobotCentric() //Field oriented drive
+    public final static SwerveRequest.RobotCentric driveRobot = new SwerveRequest.RobotCentric() //Field oriented drive
   .withDeadband(driveConstants.MaxSpeed * driveConstants.SpeedDeadbandPercentage)
   .withRotationalDeadband(driveConstants.MaxAngularRate * driveConstants.SpeedDeadbandPercentage) // Adds a deadzone to the robot's speed
   .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
@@ -75,9 +84,14 @@ public class RobotContainer {
   public final static Telemetry logger = new Telemetry(driveConstants.MaxSpeed);
   
   public static Vision vision = new Vision();
+  public static Odometry odometry;
+  public static PathPlanner pathplanner = new PathPlanner();
 
   //// Pivor \\\\\
   public static PIDController chassisPID;
+  public static boolean shootOverride = false;
+  public static boolean revOverride = false;
+  public static boolean intakeOverride = false;
 
   ///// OPERATOR CONTROLLER \\\\\
   public static XboxController xbox2 = new XboxController(1); // Operator joystick
@@ -99,13 +113,16 @@ public class RobotContainer {
   public static CANSparkFlex intakeMotor; // Shoot motor on the bottom - orange wheels connected with belt
   public static int ShooterMode = 0; //0 is intake, 1 is speaker, and 2 is amp. 
   static ShooterManager setShooterSpeed;
+  public static CANdle led = new CANdle(0);
 
   ///// CLIMBER \\\\\
   public static CANSparkMax climberMotor;
   public static DutyCycleEncoder climberCoder;
   public static boolean climberLimits = true;
   public static Climber climber;
+  static ShooterManager shooterManager;
 
+  public static Command ShootCargo, Shoot, Intake;
 
 
   private void configureBindings() {
@@ -125,6 +142,16 @@ public class RobotContainer {
 
 
 
+      // while (ShooterMode == 1){// && vision.isFacingSpeaker()) { // Speaker auto target
+      //     drivetrain.applyRequest(() -> 
+      //         driveField
+      //         .withVelocityX(-Math.pow(Deadzone(joystick.getLeftY()), 3) * driveConstants.MaxSpeed * (1 - (joystick.getLeftTriggerAxis() * 0.8))) // Drive forward with negative Y (forward)
+      //         .withVelocityY(-Math.pow(Deadzone(joystick.getLeftX()), 3) * driveConstants.MaxSpeed * (1 - (joystick.getLeftTriggerAxis() * 0.8))) // Drive left with negative X (left)
+      //         .withRotationalRate(-Math.pow(Deadzone(joystick.getRightX()), 3) * driveConstants.MaxAngularRate
+      //         + speakerPID.calculate(vision.angleDifference)) // Drive counterclockwise with negative X (left) AND AUTOTARGET
+      //   );
+      // }
+
 
 
       joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
@@ -132,13 +159,22 @@ public class RobotContainer {
       joystick.rightBumper().whileTrue(
           drivetrain.applyRequest(() ->
           driveRobot
-              .withVelocityX(Math.pow(Deadzone(joystick.getLeftY()), 3) * driveConstants.MaxSpeed * (1 - (joystick.getLeftTriggerAxis() * 0.8))) // Drive forward with negative Y (forward)
-              .withVelocityY(Math.pow(Deadzone(joystick.getLeftX()), 3) * driveConstants.MaxSpeed * (1 - (joystick.getLeftTriggerAxis() * 0.8))) // Drive left with negative X (left)
-              .withRotationalRate(Math.pow(Deadzone(joystick.getRightX()), 3) * driveConstants.MaxAngularRate) // Drive counterclockwise with negative X (left)
+              .withVelocityX(Math.pow(Deadzone(joystick.getLeftY()), 3) * driveConstants.MaxSpeed) //* (1 - (joystick.getLeftTriggerAxis() * 0.8))) // Drive forward with negative Y (forward)
+              .withVelocityY(Math.pow(Deadzone(joystick.getLeftX()), 3) * driveConstants.MaxSpeed) //* (1 - (joystick.getLeftTriggerAxis() * 0.8))) // Drive left with negative X (left)
+              .withRotationalRate(-Math.pow(Deadzone(joystick.getRightX()), 3) * driveConstants.MaxAngularRate) // Drive counterclockwise with negative X (left)
         ));
 
       // reset the field-centric heading on left bumper press
-      joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative()));
+      joystick.leftBumper().onTrue(new Command() {
+        @Override
+        public void initialize() {
+          drivetrain.seedFieldRelative();
+        }
+        @Override 
+        public boolean isFinished() {
+          return true;
+        }
+      });
 
       if (Utils.isSimulation()) {
         drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
@@ -162,8 +198,79 @@ public class RobotContainer {
     ); // Waits until after the funnyun has cleared the flywheels to report that there is no longer a funnyun
     
 
-    shooter.setDefaultCommand(new ShooterManager());
+    shooter.setDefaultCommand(shooterManager);
     climber.setDefaultCommand(new ClimbCommand());
+
+    ShootCargo = new Command() {
+      boolean isFinished = false;
+
+      @Override
+      public void initialize() {
+        hasFunnyun = true;
+        ShooterMode = 1;
+        revOverride = true;
+      }
+
+      @Override
+      public void execute() {
+        if( Math.abs(shooter.calculatePivotAngle() - shooter.getAngle()) < pivotConstants.Tolerance) {
+          shootOverride = true;
+        }
+        if(!hasFunnyun) {
+          shootOverride = false;
+          revOverride = false;
+          ShooterMode = 0;
+          isFinished = true;
+        }
+      }
+
+      @Override 
+      public boolean isFinished() {
+        return isFinished;
+      }
+    };
+
+    Shoot = new Command() {
+      boolean isFinished = false;
+
+      @Override
+      public void initialize() {
+        ShooterMode = 1;
+        revOverride = true;
+      }
+
+      @Override
+      public void execute() {
+        if( Math.abs(shooter.calculatePivotAngle() - shooter.getAngle()) < pivotConstants.Tolerance) {
+          shootOverride = true;
+        }
+        if(!hasFunnyun) {
+          shootOverride = false;
+          revOverride = false;
+          ShooterMode = 0;
+          isFinished = true;
+        }
+      }
+
+      @Override 
+      public boolean isFinished() {
+        return isFinished;
+      }
+    };
+
+    Intake = new Command() {
+
+      @Override
+      public void initialize() {
+        intakeOverride = true;
+      }
+
+      @Override
+      public void end(boolean interrupted) {
+        intakeOverride = false;
+      }
+    };
+  }
     
     
     //What we want
@@ -171,33 +278,31 @@ public class RobotContainer {
     // Right Trigger - Rev button, aim the shooter if in speaker mode
     // (Speaker Mode / Amp Mode), two buttons to set it to either fire into the amp or the speaker.
 
-
-    
-  }
-
   public static double Deadzone(double speed) {
     if (Math.abs(speed) > driveConstants.ControllerDeadzone) return speed;
     return 0;
   }
 
-  public ChassisSpeeds getChassisSpeeds() {
-    return new ChassisSpeeds(
-      navx.getVelocityX(),
-      navx.getVelocityY(),
-      pigeon2.getAngularVelocityZDevice().getValueAsDouble()
-    );
-  }
-
   public void driveChassisSpeeds(ChassisSpeeds speeds) {
-    drivetrain.applyRequest(() -> 
-              driveField
-              .withVelocityX(speeds.vxMetersPerSecond)
-              .withVelocityY(speeds.vyMetersPerSecond)
-              .withRotationalRate(speeds.omegaRadiansPerSecond)
+    drivetrain.setControl(
+      driveRobot
+      .withVelocityX(speeds.vxMetersPerSecond)
+      .withVelocityY(speeds.vyMetersPerSecond)
+      .withRotationalRate(speeds.omegaRadiansPerSecond)
     );
   }
 
   public RobotContainer() {
+
+    dFR = new TalonFX(1);
+    dFL = new TalonFX(3);
+    dBL = new TalonFX(5);
+    dBR = new TalonFX(7);
+
+    cFR = new CANcoder(12);
+    cFL = new CANcoder(9);
+    cBL = new CANcoder(10);
+    cBR = new CANcoder(11);
 
     //// Pivor \\\\\
     chassisPID = driveConstants.chassisPID;
@@ -217,29 +322,6 @@ public class RobotContainer {
     
     ///// AUTO \\\\\
     pigeon2 = new Pigeon2(0);
-    navx = new AHRS(Port.kMXP);
-    
-    // AutoBuilder.configureHolonomic(
-      
-    //   logger::getPose,
-    //   drivetrain::seedFieldRelative,
-    //   this::getChassisSpeeds,
-    //   this::driveChassisSpeeds,
-    //   driveConstants.config,
-      
-    //   () -> { //Flip the path if opposite team?
-    //     var alliance = DriverStation.getAlliance();
-    //     if (alliance.isPresent()) {
-    //       return alliance.get() == DriverStation.Alliance.Red;
-    //     }
-    //     return false;
-    //   },
-      
-    //   drivetrain
-      
-    // ); //TODO fix auto 
-      
-      
       
     ///// ARM \\\\\
       
@@ -257,10 +339,33 @@ public class RobotContainer {
     shooterMotor2.setIdleMode(IdleMode.kBrake);
     intakeMotor.setIdleMode(IdleMode.kBrake);
 
+    odometry = new Odometry();
+    shooterManager = new ShooterManager();
+
+    NamedCommands.registerCommand("Shoot", Shoot);
+
+
+    AutoBuilder.configureHolonomic(
+      odometry::getPose,
+      odometry::resetPose,
+      odometry::getChassisSpeeds,
+      this::driveChassisSpeeds,
+      driveConstants.config,
+      
+      () -> { //Flip the path if opposite team?
+        var alliance = DriverStation.getAlliance();
+        if (alliance.isPresent()) {
+          return alliance.get() == DriverStation.Alliance.Red;
+        }
+        return false;
+      },
+      drivetrain
+    ); //TODO fix auto 
+
     configureBindings();
   }
 
-  public Command getAutonomousCommand() {
-    return Commands.print("No autonomous command configured");
+  public Command getAutonomousCommand() { 
+    return new SequentialCommandGroup(ShootCargo, new ParallelRaceGroup(AutoBuilder.buildAuto("Two Note Auto"), Intake), Shoot);
   }
 }

@@ -24,7 +24,7 @@ public class ClimbCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    speed = Math.pow(RobotContainer.Deadzone(RobotContainer.xbox2.getRightY()), 3);
+    speed = RobotContainer.joystick.getRightTriggerAxis() - RobotContainer.joystick.getLeftTriggerAxis();
     RobotContainer.climber.climb(speed);
   }
 
