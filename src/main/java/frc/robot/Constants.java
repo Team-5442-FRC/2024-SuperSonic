@@ -42,8 +42,8 @@ public class Constants {
 
     public static final class shooterConstants {
 
-        public final static double ShooterMaxSpeed = 1; // Was 0.8
-        public final static double ShooterMinSpeed = 0.4; // Was 0.4
+        public final static double ShooterMaxSpeed = 0.8; // Was 0.8
+        public final static double ShooterMinSpeed = 0.8; // Was 0.4
         public final static double ShooterBottomSpeedDifference = 0.08; //How much slower should the bottom speeds be
         public final static double AmpSpeed = 0.4; // Both motors same speed
         public final static double IntakeSpeed = 0.35;
@@ -57,8 +57,8 @@ public class Constants {
 
         public final static double PivotY = 2.051102 - 0.28 + 0.2; // Height from pivot (hexshaft) to speaker; Meters
         public final static double kA = 0; // Quadratic x^2
-        public final static double kB = 0.2; // Quadratic x
-        public final static double kC = -0.6; // Quadratic constant
+        public final static double kB = 0; // Quadratic x, was 0.2
+        public final static double kC = 0; // Quadratic constant, was -0.6
 
         public final static PIDController speakerPID = new PIDController(0.01, 0, 0);
         
@@ -79,10 +79,10 @@ public class Constants {
         public final static double Tolerance = 3;
         public final static double EncoderOffset = -33;
         public final static double MinAngle = -45; //Degrees
-        public final static double MaxAngle = 65;
+        public final static double MaxAngle = 60;
 
         public final static double AmpAngle = -45;
-        public final static double IntakeAngle = 65;
+        public final static double IntakeAngle = 60;
         public final static double SpeakerAngle = 40;
         
         public final static double kP = 0.02; // Proportion
@@ -102,7 +102,7 @@ public class Constants {
         // public final static double MaxDegrees = 0; // Maximum value of encoder degrees
         // public final static double CycleTolerance = 180; // How many degrees have to change to be considered a cycle
         public final static double MinDistance = 0;
-        public final static double MaxDistance = 16.4;
+        public final static double MaxDistance = 22.4;
 
     }
 

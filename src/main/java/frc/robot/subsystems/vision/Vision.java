@@ -13,7 +13,6 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Telemetry;
@@ -21,6 +20,7 @@ import frc.robot.subsystems.Telemetry;
 public class Vision extends SubsystemBase {
 
   boolean target;
+  double latency;
 
   private Pose2d fieldPose, localPose;
 
@@ -50,6 +50,10 @@ public class Vision extends SubsystemBase {
 
   public Pose2d getLocalPose() {
     return this.localPose;
+  }
+
+  public double getLatency() {
+    return this.latency;
   }
   
   public boolean isFacingSpeaker() {
@@ -88,15 +92,30 @@ public class Vision extends SubsystemBase {
 
     //Get field relative positional data
 
-    double[] fieldRelative = visionTable.getEntry("botpose").getDoubleArray(new double[6]);
+    double[] fieldRelative = visionTable.getEntry("botpose_wpiblue").getDoubleArray(new double[7]);
 
-    this.fieldPose = new Pose2d(
-      new Translation2d(
-        fieldRelative[0] + 0.34,
-        fieldRelative[1] + 0.65
-      ),
-      Rotation2d.fromDegrees(fieldRelative[5])
-    );
+
+    if(ally.get() == Alliance.Blue) {
+      
+      this.fieldPose = new Pose2d(
+        new Translation2d(
+          fieldRelative[0] + 0.34,
+          fieldRelative[1] + 0.75
+        ),
+        Rotation2d.fromDegrees(fieldRelative[5])
+      );
+    } else if(ally.get() == Alliance.Red) {
+      
+      this.fieldPose = new Pose2d(
+        new Translation2d(
+          fieldRelative[0] - 0.34,
+          fieldRelative[1] - 0.75
+        ),
+        Rotation2d.fromDegrees(fieldRelative[5])
+      );
+    }
+
+    this.latency = fieldRelative[6];
 
     // SmartDashboard.putNumber("Robot Field Position X", logger.getPose().getX());
     // SmartDashboard.putNumber("Robot Field Position Y",  logger.getPose().getY());

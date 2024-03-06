@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.0081866317578805,
-      "y": 6.630585568863446
+      "x": 15.41392313553858,
+      "y": 6.7095211113499165
     },
-    "rotation": -142.49585763972996
+    "rotation": -29.14807184571312
   },
   "command": {
     "type": "sequential",
@@ -14,7 +14,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Get To Note"
+            "pathName": "Move To Shoot Red Left"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Shoot Cargo"
           }
         }
       ]

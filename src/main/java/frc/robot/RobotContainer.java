@@ -67,15 +67,14 @@ public class RobotContainer {
   public final static CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
 
   public final static SwerveRequest.FieldCentric driveField = new SwerveRequest.FieldCentric() //Field oriented drive
+    .withDeadband(driveConstants.MaxSpeed * driveConstants.SpeedDeadbandPercentage)
+    .withRotationalDeadband(driveConstants.MaxAngularRate * driveConstants.SpeedDeadbandPercentage) // Adds a deadzone to the robot's speed
+    .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
-      .withDeadband(driveConstants.MaxSpeed * driveConstants.SpeedDeadbandPercentage)
-      .withRotationalDeadband(driveConstants.MaxAngularRate * driveConstants.SpeedDeadbandPercentage) // Adds a deadzone to the robot's speed
-      .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-
-    public final static SwerveRequest.RobotCentric driveRobot = new SwerveRequest.RobotCentric() //Field oriented drive
-  .withDeadband(driveConstants.MaxSpeed * driveConstants.SpeedDeadbandPercentage)
-  .withRotationalDeadband(driveConstants.MaxAngularRate * driveConstants.SpeedDeadbandPercentage) // Adds a deadzone to the robot's speed
-  .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+  public final static SwerveRequest.RobotCentric driveRobot = new SwerveRequest.RobotCentric() //Field oriented drive
+    .withDeadband(driveConstants.MaxSpeed * driveConstants.SpeedDeadbandPercentage)
+    .withRotationalDeadband(driveConstants.MaxAngularRate * driveConstants.SpeedDeadbandPercentage) // Adds a deadzone to the robot's speed
+    .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
 
 
@@ -95,6 +94,7 @@ public class RobotContainer {
 
   ///// OPERATOR CONTROLLER \\\\\
   public static XboxController xbox2 = new XboxController(1); // Operator joystick
+  public static XboxController xbox1 = new XboxController(0);
   public static JoystickButton xbox2A = new JoystickButton(xbox2, 1);
   public static JoystickButton xbox2B = new JoystickButton(xbox2, 2);
   public static JoystickButton xbox2Y = new JoystickButton(xbox2, 4);
@@ -201,75 +201,7 @@ public class RobotContainer {
     shooter.setDefaultCommand(shooterManager);
     climber.setDefaultCommand(new ClimbCommand());
 
-    ShootCargo = new Command() {
-      boolean isFinished = false;
-
-      @Override
-      public void initialize() {
-        hasFunnyun = true;
-        ShooterMode = 1;
-        revOverride = true;
-      }
-
-      @Override
-      public void execute() {
-        if( Math.abs(shooter.calculatePivotAngle() - shooter.getAngle()) < pivotConstants.Tolerance) {
-          shootOverride = true;
-        }
-        if(!hasFunnyun) {
-          shootOverride = false;
-          revOverride = false;
-          ShooterMode = 0;
-          isFinished = true;
-        }
-      }
-
-      @Override 
-      public boolean isFinished() {
-        return isFinished;
-      }
-    };
-
-    Shoot = new Command() {
-      boolean isFinished = false;
-
-      @Override
-      public void initialize() {
-        ShooterMode = 1;
-        revOverride = true;
-      }
-
-      @Override
-      public void execute() {
-        if( Math.abs(shooter.calculatePivotAngle() - shooter.getAngle()) < pivotConstants.Tolerance) {
-          shootOverride = true;
-        }
-        if(!hasFunnyun) {
-          shootOverride = false;
-          revOverride = false;
-          ShooterMode = 0;
-          isFinished = true;
-        }
-      }
-
-      @Override 
-      public boolean isFinished() {
-        return isFinished;
-      }
-    };
-
-    Intake = new Command() {
-
-      @Override
-      public void initialize() {
-        intakeOverride = true;
-      }
-
-      @Override
-      public void end(boolean interrupted) {
-        intakeOverride = false;
-      }
-    };
+    
   }
     
     
@@ -342,7 +274,79 @@ public class RobotContainer {
     odometry = new Odometry();
     shooterManager = new ShooterManager();
 
+    ShootCargo = new Command() {
+      boolean isFinished = false;
+
+      @Override
+      public void initialize() {
+        hasFunnyun = true;
+        ShooterMode = 1;
+        revOverride = true;
+      }
+
+      @Override
+      public void execute() {
+        if( Math.abs(shooter.calculatePivotAngle() - shooter.getAngle()) < pivotConstants.Tolerance) {
+          shootOverride = true;
+        }
+        if(!hasFunnyun) {
+          shootOverride = false;
+          revOverride = false;
+          ShooterMode = 0;
+          isFinished = true;
+        }
+      }
+
+      @Override 
+      public boolean isFinished() {
+        return isFinished;
+      }
+    };
+
+    Shoot = new Command() {
+      boolean isFinished = false;
+
+      @Override
+      public void initialize() {
+        ShooterMode = 1;
+        revOverride = true;
+      }
+
+      @Override
+      public void execute() {
+        if( Math.abs(shooter.calculatePivotAngle() - shooter.getAngle()) < pivotConstants.Tolerance) {
+          shootOverride = true;
+        }
+        if(!hasFunnyun) {
+          shootOverride = false;
+          revOverride = false;
+          ShooterMode = 0;
+          isFinished = true;
+        }
+      }
+
+      @Override 
+      public boolean isFinished() {
+        return isFinished;
+      }
+    };
+
+    Intake = new Command() {
+
+      @Override
+      public void initialize() {
+        intakeOverride = true;
+      }
+
+      @Override
+      public void end(boolean interrupted) {
+        intakeOverride = false;
+      }
+    };
+
+    NamedCommands.registerCommand("Shoot Cargo", ShootCargo);
     NamedCommands.registerCommand("Shoot", Shoot);
+    NamedCommands.registerCommand("Intake", Intake);
 
 
     AutoBuilder.configureHolonomic(
@@ -353,10 +357,6 @@ public class RobotContainer {
       driveConstants.config,
       
       () -> { //Flip the path if opposite team?
-        var alliance = DriverStation.getAlliance();
-        if (alliance.isPresent()) {
-          return alliance.get() == DriverStation.Alliance.Red;
-        }
         return false;
       },
       drivetrain
@@ -366,6 +366,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() { 
-    return new SequentialCommandGroup(ShootCargo, new ParallelRaceGroup(AutoBuilder.buildAuto("Two Note Auto"), Intake), Shoot);
+    return AutoBuilder.buildAuto("Red Left");
   }
 }

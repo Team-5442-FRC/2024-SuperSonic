@@ -6,6 +6,8 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.pivotConstants;
 import frc.robot.Constants.shooterConstants;
@@ -52,7 +54,7 @@ public class ShooterManager extends Command {
       RobotContainer.shooter.setShooterSpeed(0);
     }
 
-    if((RobotContainer.xbox2A.getAsBoolean() || RobotContainer.shootOverride) && RobotContainer.hasFunnyun && (RobotContainer.xbox2.getRightTriggerAxis() > shooterConstants.TriggerDeadzone || RobotContainer.shootOverride) && RobotContainer.shooter.shooterMotor1.getOutputCurrent() <= shooterConstants.MotorSettledAmps ) {
+    if((RobotContainer.xbox2A.getAsBoolean() || RobotContainer.shootOverride) && RobotContainer.hasFunnyun && (RobotContainer.xbox2.getRightTriggerAxis() > shooterConstants.TriggerDeadzone || RobotContainer.revOverride) && RobotContainer.shooter.shooterMotor1.getOutputCurrent() <= shooterConstants.MotorSettledAmps ) {
       speed = shooterConstants.IntakeSpeed;
     }
 
@@ -102,6 +104,7 @@ public class ShooterManager extends Command {
     {
       RobotContainer.hasFunnyun = true;
       RobotContainer.gotFunnyun.schedule();
+      new SequentialCommandGroup(new RumbleDuration(0.2), new WaitCommand(0.75), new RumbleDuration(0.2), new WaitCommand(0.2)).schedule();  
       backTripped = false;
     }
 
