@@ -1,0 +1,37 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 15.719798362673647,
+      "y": 4.40065649362068
+    },
+    "rotation": 57.17145820858725
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Red Right Move"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.25
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Shoot Cargo"
+          }
+        }
+      ]
+    }
+  },
+  "folder": "Red Right",
+  "choreoAuto": false
+}

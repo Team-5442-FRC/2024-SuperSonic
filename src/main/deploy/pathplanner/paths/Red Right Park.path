@@ -1,0 +1,52 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 15.719798362673647,
+        "y": 4.40065649362068
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 15.433657021160197,
+        "y": 4.084914323674802
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 10.184443445809968,
+        "y": 1.3813719935132178
+      },
+      "prevControl": {
+        "x": 13.98321642797132,
+        "y": 1.164299251675426
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Red Right Transition"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -178.89829388479365,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "Red Right",
+  "previewStartingState": {
+    "rotation": 53.13010235415621,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}

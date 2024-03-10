@@ -111,9 +111,10 @@ public class Shooter extends SubsystemBase {
     double x = Math.sqrt((xDist * xDist) + (yDist * yDist)); // Variable, hypotenuse distance to base of speaker
     H += getHeightOffset(x);
     double a = (R * ((R * x) + (H * Math.sqrt((x * x) + (H * H) - (R * R)))))/((H * H) - (R*R)); // ouchy oof my math
-    if(RobotContainer.vision.target()) {
-      return Math.asin(R/a) * (180 / Math.PI); // maffs ^-^
-    }
+    // AUTO AIM HAS BEEN DISABLED.  UNCOMMENT TO RE-ENABLE.
+    // if(RobotContainer.vision.target()) {
+    //   return Math.asin(R/a) * (180 / Math.PI); // maffs ^-^
+    // }
     return pivotConstants.SpeakerAngle;
   }
 

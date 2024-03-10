@@ -4,7 +4,13 @@
 
 package frc.robot;
 
+import java.util.Optional;
+
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -60,6 +66,15 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
+    }
+
+    Optional<Alliance> ally = DriverStation.getAlliance();
+    new Rotation2d();
+    if(ally.get() == Alliance.Blue) { // Set blue field orientation.  TODO - CHECK IF THIS WORKS PROPERLY.  ADDED 3/7/24.
+      RobotContainer.drivetrain.seedFieldRelative(new Pose2d(RobotContainer.odometry.getPose().getTranslation(), Rotation2d.fromDegrees(RobotContainer.odometry.getPose().getRotation().getDegrees())));
+    }
+    else if(ally.get() == Alliance.Red) { // Set red field orientation.  TODO - CHECK IF THIS WORKS PROPERLY.  ADDED 3/7/24.
+      RobotContainer.drivetrain.seedFieldRelative(new Pose2d(RobotContainer.odometry.getPose().getTranslation(), Rotation2d.fromDegrees(360 - RobotContainer.odometry.getPose().getRotation().getDegrees())));
     }
   }
 

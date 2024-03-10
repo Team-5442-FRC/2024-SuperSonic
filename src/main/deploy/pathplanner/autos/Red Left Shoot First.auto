@@ -1,0 +1,43 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 15.41392313553858,
+      "y": 6.7095211113499165
+    },
+    "rotation": -29.14807184571312
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "Shoot Cargo"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Red Left Straight Intake"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.25
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Shoot"
+          }
+        }
+      ]
+    }
+  },
+  "folder": "Red Left",
+  "choreoAuto": false
+}

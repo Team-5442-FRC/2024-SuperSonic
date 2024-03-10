@@ -95,25 +95,14 @@ public class Vision extends SubsystemBase {
     double[] fieldRelative = visionTable.getEntry("botpose_wpiblue").getDoubleArray(new double[7]);
 
 
-    if(ally.get() == Alliance.Blue) {
-      
-      this.fieldPose = new Pose2d(
-        new Translation2d(
-          fieldRelative[0] + 0.34,
-          fieldRelative[1] + 0.75
-        ),
-        Rotation2d.fromDegrees(fieldRelative[5])
-      );
-    } else if(ally.get() == Alliance.Red) {
-      
-      this.fieldPose = new Pose2d(
-        new Translation2d(
-          fieldRelative[0] - 0.34,
-          fieldRelative[1] - 0.75
-        ),
-        Rotation2d.fromDegrees(fieldRelative[5])
-      );
-    }
+    this.fieldPose = new Pose2d(
+      new Translation2d(
+        fieldRelative[0] + 0.34,
+        fieldRelative[1] + 0.75 - 0.61
+      ),
+      Rotation2d.fromDegrees(fieldRelative[5])
+    );
+    
 
     this.latency = fieldRelative[6];
 

@@ -1,0 +1,31 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.8305816611633238,
+      "y": 4.40065649362068
+    },
+    "rotation": 122.27564431457769
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "Shoot Cargo"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Blue Left Park"
+          }
+        }
+      ]
+    }
+  },
+  "folder": "Blue Left",
+  "choreoAuto": false
+}

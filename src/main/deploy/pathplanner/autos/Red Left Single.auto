@@ -14,7 +14,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Move To Shoot Red Left"
+            "pathName": "Red Left Move"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.25
           }
         },
         {
@@ -26,6 +32,6 @@
       ]
     }
   },
-  "folder": null,
+  "folder": "Red Left",
   "choreoAuto": false
 }

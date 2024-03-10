@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.0081866317578805,
-      "y": 6.630585568863446
+      "x": 1.4194171612308972,
+      "y": 5.574358195791997
     },
-    "rotation": -142.49585763972996
+    "rotation": 179.9555481287275
   },
   "command": {
     "type": "sequential",
@@ -14,13 +14,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Move To Shoot Blue Right"
+            "pathName": "Blue Middle Move"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.5
+            "waitTime": 0.25
           }
         },
         {
@@ -32,7 +32,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Pick up Third Ring"
+            "pathName": "Blue Middle Intake"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.25
           }
         },
         {
@@ -44,6 +50,6 @@
       ]
     }
   },
-  "folder": null,
+  "folder": "Blue Middle",
   "choreoAuto": false
 }

@@ -24,9 +24,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
@@ -122,7 +122,8 @@ public class RobotContainer {
   public static Climber climber;
   static ShooterManager shooterManager;
 
-  public static Command ShootCargo, Shoot, Intake;
+  public static Command ShootCargo, Shoot, Intake, kShootOverride;
+
 
 
   private void configureBindings() {
@@ -164,8 +165,9 @@ public class RobotContainer {
               .withRotationalRate(-Math.pow(Deadzone(joystick.getRightX()), 3) * driveConstants.MaxAngularRate) // Drive counterclockwise with negative X (left)
         ));
 
-      // reset the field-centric heading on left bumper press
-      joystick.leftBumper().onTrue(new Command() {
+      // reset the field-centric heading on down dpad press (used to be left bumper)
+      // joystick.leftBumper().onTrue(new Command() {
+      joystick.povDown().onTrue(new Command() {
         @Override
         public void initialize() {
           drivetrain.seedFieldRelative();
@@ -215,7 +217,7 @@ public class RobotContainer {
     return 0;
   }
 
-  public void driveChassisSpeeds(ChassisSpeeds speeds) {
+  public static void driveChassisSpeeds(ChassisSpeeds speeds) {
     drivetrain.setControl(
       driveRobot
       .withVelocityX(speeds.vxMetersPerSecond)
@@ -274,6 +276,26 @@ public class RobotContainer {
     odometry = new Odometry();
     shooterManager = new ShooterManager();
 
+    kShootOverride = new Command() {
+      WaitCommand kWait;
+
+      @Override
+      public void initialize() {
+        kWait = new WaitCommand(0.5);
+        kWait.schedule();
+      }
+
+      @Override
+      public void end(boolean interrupted) {
+        shootOverride = true;
+      }
+
+      @Override
+      public boolean isFinished() {
+        return kWait.isFinished();
+      }
+    };
+
     ShootCargo = new Command() {
       boolean isFinished = false;
 
@@ -287,7 +309,7 @@ public class RobotContainer {
       @Override
       public void execute() {
         if( Math.abs(shooter.calculatePivotAngle() - shooter.getAngle()) < pivotConstants.Tolerance) {
-          shootOverride = true;
+          kShootOverride.schedule();
         }
         if(!hasFunnyun) {
           shootOverride = false;
@@ -315,7 +337,7 @@ public class RobotContainer {
       @Override
       public void execute() {
         if( Math.abs(shooter.calculatePivotAngle() - shooter.getAngle()) < pivotConstants.Tolerance) {
-          shootOverride = true;
+          kShootOverride.schedule();
         }
         if(!hasFunnyun) {
           shootOverride = false;
@@ -348,24 +370,25 @@ public class RobotContainer {
     NamedCommands.registerCommand("Shoot", Shoot);
     NamedCommands.registerCommand("Intake", Intake);
 
+    
 
     AutoBuilder.configureHolonomic(
       odometry::getPose,
       odometry::resetPose,
       odometry::getChassisSpeeds,
-      this::driveChassisSpeeds,
+      RobotContainer::driveChassisSpeeds,
       driveConstants.config,
       
       () -> { //Flip the path if opposite team?
         return false;
       },
-      drivetrain
-    ); //TODO fix auto 
+      RobotContainer.drivetrain
+    );
 
     configureBindings();
   }
 
   public Command getAutonomousCommand() { 
-    return AutoBuilder.buildAuto("Red Left");
+    return pathplanner.getAuto();
   }
 }

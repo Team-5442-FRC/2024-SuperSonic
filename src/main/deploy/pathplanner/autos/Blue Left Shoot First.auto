@@ -1,0 +1,43 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.9687188605146458,
+      "y": 4.40065649362068
+    },
+    "rotation": 140.7927964950322
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "Shoot Cargo"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Blue Left Straight Intake"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.25
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Shoot"
+          }
+        }
+      ]
+    }
+  },
+  "folder": "Blue Left",
+  "choreoAuto": false
+}

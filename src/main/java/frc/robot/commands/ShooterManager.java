@@ -48,6 +48,8 @@ public class ShooterManager extends Command {
         RobotContainer.shooter.setShooterSpeed(RobotContainer.shooter.getSpeakerSpeed());
       } else if (RobotContainer.ShooterMode == 2) {
         RobotContainer.shooter.setShooterSpeed(shooterConstants.AmpSpeed);
+      } else if (RobotContainer.ShooterMode == 3) {
+        RobotContainer.shooter.setShooterSpeed(shooterConstants.PassingSpeed);
       } else RobotContainer.shooter.setShooterSpeed(0);
       
     } else {
@@ -116,6 +118,8 @@ public class ShooterManager extends Command {
       RobotContainer.ShooterMode = 2;
     } else if (RobotContainer.xbox2.getPOV() == 180) { // Intake - Down
       RobotContainer.ShooterMode = 0;
+    } else if (RobotContainer.xbox2.getLeftBumper()) { // Passing - Left Bumper
+      RobotContainer.ShooterMode = 3;
     }
 
     // if (Math.abs(RobotContainer.xbox2.getLeftY()) >= shooterConstants.TriggerDeadzone) targetAngle += RobotContainer.xbox2.getLeftY();
@@ -132,7 +136,9 @@ public class ShooterManager extends Command {
       // targetAngle += RobotContainer.xbox2.getLeftY();
     } else if (RobotContainer.ShooterMode == 1) {
       climberOffset = 0;
-      targetAngle = RobotContainer.shooter.calculatePivotAngle(); //Soeaj (AKA Speaker in Tallonese) Mode TODO UNCOMMENT
+      targetAngle = RobotContainer.shooter.calculatePivotAngle(); //Speaker mode
+    } else if (RobotContainer.ShooterMode == 3) {
+      targetAngle = pivotConstants.PassingAngle; //Passing Mode
     }
 
     if (targetAngle >= pivotConstants.MaxAngle) {

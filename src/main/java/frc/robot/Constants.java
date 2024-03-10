@@ -42,8 +42,9 @@ public class Constants {
 
     public static final class shooterConstants {
 
-        public final static double ShooterMaxSpeed = 0.8; // Was 0.8
-        public final static double ShooterMinSpeed = 0.8; // Was 0.4
+        public final static double ShooterMaxSpeed = 0.75; // Was 0.8
+        public final static double ShooterMinSpeed = 0.75; // Was 0.4
+        public final static double PassingSpeed = 0.56;
         public final static double ShooterBottomSpeedDifference = 0.08; //How much slower should the bottom speeds be
         public final static double AmpSpeed = 0.4; // Both motors same speed
         public final static double IntakeSpeed = 0.35;
@@ -55,7 +56,7 @@ public class Constants {
 
         public final static double VisionUpdateFrequency = 0.5; // Seconds
 
-        public final static double PivotY = 2.051102 - 0.28 + 0.2; // Height from pivot (hexshaft) to speaker; Meters
+        public final static double PivotY = 2.051102 - 0.28 + 0.15; // Height from pivot (hexshaft) to speaker; Meters
         public final static double kA = 0; // Quadratic x^2
         public final static double kB = 0; // Quadratic x, was 0.2
         public final static double kC = 0; // Quadratic constant, was -0.6
@@ -83,13 +84,13 @@ public class Constants {
 
         public final static double AmpAngle = -45;
         public final static double IntakeAngle = 60;
-        public final static double SpeakerAngle = 40;
+        public final static double SpeakerAngle = 42;
+        public final static double PassingAngle = 37;
         
         public final static double kP = 0.02; // Proportion
         public final static double kI = 0.0001; // Integral
         public final static double kD = 0; // Derivative
-        public final static double kTolerance = 1; // Degrees
-
+        public final static double kTolerance = 0.25; // Degrees
         public final static double PivotRadius = 0.61; // Meters
 
     }
