@@ -109,12 +109,12 @@ public class Shooter extends SubsystemBase {
     xDist = RobotContainer.odometry.getPose().getX() - speakerPosition.getX(); // Variable, x distance from pivot (hexshaft) to base of speaker
     yDist = RobotContainer.odometry.getPose().getY() - speakerPosition.getY(); // Variable, y distance from pivot (hexshaft) to base of speaker
     double x = Math.sqrt((xDist * xDist) + (yDist * yDist)); // Variable, hypotenuse distance to base of speaker
-    H += getHeightOffset(x);
+    // H += getHeightOffset(x);
     double a = (R * ((R * x) + (H * Math.sqrt((x * x) + (H * H) - (R * R)))))/((H * H) - (R*R)); // ouchy oof my math
-    // AUTO AIM HAS BEEN DISABLED.  UNCOMMENT TO RE-ENABLE.
-    // if(RobotContainer.vision.target()) {
-    //   return Math.asin(R/a) * (180 / Math.PI); // maffs ^-^
-    // }
+
+    if(RobotContainer.vision.target()) {
+      return Math.asin(R/a) * (180 / Math.PI); // maffs ^-^
+    }
     return pivotConstants.SpeakerAngle;
   }
 

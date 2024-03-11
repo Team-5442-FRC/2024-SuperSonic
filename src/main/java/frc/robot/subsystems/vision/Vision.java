@@ -97,8 +97,8 @@ public class Vision extends SubsystemBase {
 
     this.fieldPose = new Pose2d(
       new Translation2d(
-        fieldRelative[0] + 0.34,
-        fieldRelative[1] + 0.75 - 0.61
+        fieldRelative[0], // + 0.34,
+        fieldRelative[1] // + 0.75 - 0.61
       ),
       Rotation2d.fromDegrees(fieldRelative[5])
     );

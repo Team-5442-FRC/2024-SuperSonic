@@ -42,8 +42,8 @@ public class Constants {
 
     public static final class shooterConstants {
 
-        public final static double ShooterMaxSpeed = 0.75; // Was 0.8
-        public final static double ShooterMinSpeed = 0.75; // Was 0.4
+        public final static double ShooterMaxSpeed = 0.65; // Was 0.8
+        public final static double ShooterMinSpeed = 0.65; // Was 0.4
         public final static double PassingSpeed = 0.56;
         public final static double ShooterBottomSpeedDifference = 0.08; //How much slower should the bottom speeds be
         public final static double AmpSpeed = 0.4; // Both motors same speed
@@ -56,7 +56,8 @@ public class Constants {
 
         public final static double VisionUpdateFrequency = 0.5; // Seconds
 
-        public final static double PivotY = 2.051102 - 0.28 + 0.15; // Height from pivot (hexshaft) to speaker; Meters
+        // 1.803 meters to center of speaker
+        public final static double PivotY = 2.051102; // - 0.28 + 0.15; // Height from pivot (hexshaft) to speaker; Meters
         public final static double kA = 0; // Quadratic x^2
         public final static double kB = 0; // Quadratic x, was 0.2
         public final static double kC = 0; // Quadratic constant, was -0.6
@@ -69,8 +70,8 @@ public class Constants {
         // public final static int RedTeamSpeakerTag = 4;
         // public final static int BlueTeamSpeakerTag = 7;
 
-        public final static Translation3d RedTeamSpeaker = new Translation3d(16.579342,  5.547868, 2.051102);
-        public final static Translation3d BluTeamSpeaker = new Translation3d(-0.0381,   5.547868, 2.051102);
+        public final static Translation3d RedTeamSpeaker = new Translation3d(16.4084,  5.547868, 2.051102); // x was 16.579342
+        public final static Translation3d BluTeamSpeaker = new Translation3d(0.1524,   5.547868, 2.051102); // x was -0.0381
         
     }
     
