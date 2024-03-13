@@ -24,7 +24,7 @@ public class Vision extends SubsystemBase {
 
   private Pose2d fieldPose, localPose;
 
-  private long targetID;
+  public long targetID;
 
   NetworkTableInstance inst = NetworkTableInstance.getDefault();
   NetworkTable visionTable;

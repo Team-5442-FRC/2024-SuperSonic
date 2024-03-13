@@ -17,7 +17,7 @@ public class Constants {
     public static final class driveConstants {
 
         public final static double MaxSpeed = 15; //Max targeted speed in M/S 
-        public final static double MaxAngularRate = 1.5 * Math.PI; //Max targeted rotations / second -- 3/4ths of a rotation for now
+        public final static double MaxAngularRate = 1.5 * Math.PI * 3; //Max targeted rotations / second -- 3/4ths of a rotation for now
         public final static double MaxAcceleration = 2; //Max acceleration in M/s/s;
         public final static double MaxAngularAcceleration = 4 * Math.PI;
         public final static double SpeedDeadbandPercentage = 0; //Deadband or Deadzone of requested speed, as a percentage of the maximum speed;
@@ -31,8 +31,8 @@ public class Constants {
         public final static double ChassisModulePosY = 10.375; //Middle of robot to module front/back position
 
         public static final HolonomicPathFollowerConfig config = new HolonomicPathFollowerConfig(
-            new PIDConstants(1,0,0),
-            new PIDConstants(1,0,0),
+            new PIDConstants(0.3,0.01,0),
+            new PIDConstants(0.5,0.01,0.01),
             MaxSpeed,
             Math.sqrt((ChassisModulePosX * ChassisModulePosX) + (ChassisModulePosY * ChassisModulePosY)),
             new ReplanningConfig()
@@ -49,10 +49,12 @@ public class Constants {
         public final static double AmpSpeed = 0.4; // Both motors same speed
         public final static double IntakeSpeed = 0.35;
         public final static double ReverseIntakeSpeed = -0.15;
-        public final static double ReverseIntakeAutomaticSpeed = -0.1;
+        public final static double ReverseIntakeAutomaticSpeed = -0.2;
         public final static double ReverseDuration = 0.5; // Seconds
         public final static double TriggerDeadzone = 0.9;
         public final static double MotorSettledAmps = 22;
+
+        public final static double AutonomousShootWait = 0.75; // Seconds
 
         public final static double VisionUpdateFrequency = 0.5; // Seconds
 
@@ -70,7 +72,7 @@ public class Constants {
         // public final static int RedTeamSpeakerTag = 4;
         // public final static int BlueTeamSpeakerTag = 7;
 
-        public final static Translation3d RedTeamSpeaker = new Translation3d(16.4084,  5.547868, 2.051102); // x was 16.579342
+        public final static Translation3d RedTeamSpeaker = new Translation3d(16.4650,  5.547868, 2.051102); // x was 16.579342, then 16.4084.  Now adjusted to match AprilTags directly.
         public final static Translation3d BluTeamSpeaker = new Translation3d(0.1524,   5.547868, 2.051102); // x was -0.0381
         
     }
@@ -104,7 +106,7 @@ public class Constants {
         // public final static double MaxDegrees = 0; // Maximum value of encoder degrees
         // public final static double CycleTolerance = 180; // How many degrees have to change to be considered a cycle
         public final static double MinDistance = 0;
-        public final static double MaxDistance = 22.4;
+        public final static double MaxDistance = 22.4; // SHOULD BE 22.4
 
     }
 

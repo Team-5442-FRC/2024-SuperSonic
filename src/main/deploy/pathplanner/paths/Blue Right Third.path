@@ -3,43 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 15.41392313553858,
-        "y": 6.640452511674254
+        "x": 2.8730388230007247,
+        "y": 6.985795510052559
       },
       "prevControl": null,
       "nextControl": {
-        "x": 15.019245423106232,
-        "y": 6.640452511674254
+        "x": 1.215392430784863,
+        "y": 6.403645884214845
       },
       "isLocked": false,
-      "linkedName": "Red Left Transition"
+      "linkedName": "Blue Right 2-3"
     },
     {
       "anchor": {
-        "x": 13.401066802133602,
-        "y": 6.9364607959985145
+        "x": 2.557296653054846,
+        "y": 5.515621031242063
       },
       "prevControl": {
-        "x": 14.60483382505227,
-        "y": 7.291670737187628
+        "x": 0.9095172036497932,
+        "y": 5.3972177175123575
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Blue Right 3-Move"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.75,
-      "rotationDegrees": 0,
-      "rotateFast": false
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "eventMarkers": [
     {
       "name": "New Event Marker",
-      "waypointRelativePos": 0.15,
+      "waypointRelativePos": 0.3,
       "command": {
         "type": "parallel",
         "data": {
@@ -63,13 +57,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -39.62900530446414,
+    "rotation": -179.31385580216474,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": "Red Left",
+  "folder": "Blue Right",
   "previewStartingState": {
-    "rotation": -25.709953780811343,
+    "rotation": -161.17528998175996,
     "velocity": 0
   },
   "useDefaultConstraints": false

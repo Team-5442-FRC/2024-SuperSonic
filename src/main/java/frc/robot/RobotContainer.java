@@ -74,7 +74,7 @@ public class RobotContainer {
   public final static SwerveRequest.RobotCentric driveRobot = new SwerveRequest.RobotCentric() //Field oriented drive
     .withDeadband(driveConstants.MaxSpeed * driveConstants.SpeedDeadbandPercentage)
     .withRotationalDeadband(driveConstants.MaxAngularRate * driveConstants.SpeedDeadbandPercentage) // Adds a deadzone to the robot's speed
-    .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+    .withDriveRequestType(DriveRequestType.Velocity);
 
 
 
@@ -85,6 +85,8 @@ public class RobotContainer {
   public static Vision vision = new Vision();
   public static Odometry odometry;
   public static PathPlanner pathplanner = new PathPlanner();
+
+  public static boolean hasFieldOriented = false; // For auto-orienting at the start of TeleOp
 
   //// Pivor \\\\\
   public static PIDController chassisPID;
@@ -122,7 +124,7 @@ public class RobotContainer {
   public static Climber climber;
   static ShooterManager shooterManager;
 
-  public static Command ShootCargo, Shoot, Intake, kShootOverride;
+  public static Command ShootCargo, Shoot, Intake, Pancake, kShootOverride;
 
 
 
@@ -171,6 +173,7 @@ public class RobotContainer {
         @Override
         public void initialize() {
           drivetrain.seedFieldRelative();
+          hasFieldOriented = true;
         }
         @Override 
         public boolean isFinished() {
@@ -281,7 +284,7 @@ public class RobotContainer {
 
       @Override
       public void initialize() {
-        kWait = new WaitCommand(0.5);
+        kWait = new WaitCommand(shooterConstants.AutonomousShootWait);
         kWait.schedule();
       }
 
@@ -366,9 +369,23 @@ public class RobotContainer {
       }
     };
 
+    Pancake = new Command() {
+
+      @Override
+      public void initialize() {
+        ShooterMode = 4; // set to pancake mode
+      }
+
+      @Override
+      public void end(boolean interrupted) {
+        ShooterMode = 0; // set back to intake
+      }
+    };
+
     NamedCommands.registerCommand("Shoot Cargo", ShootCargo);
     NamedCommands.registerCommand("Shoot", Shoot);
     NamedCommands.registerCommand("Intake", Intake);
+    NamedCommands.registerCommand("Pancake", Pancake);
 
     
 

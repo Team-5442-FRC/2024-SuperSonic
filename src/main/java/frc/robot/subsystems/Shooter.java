@@ -112,10 +112,10 @@ public class Shooter extends SubsystemBase {
     // H += getHeightOffset(x);
     double a = (R * ((R * x) + (H * Math.sqrt((x * x) + (H * H) - (R * R)))))/((H * H) - (R*R)); // ouchy oof my math
 
-    if(RobotContainer.vision.target()) {
+    // if(RobotContainer.vision.target()) {
       return Math.asin(R/a) * (180 / Math.PI); // maffs ^-^
-    }
-    return pivotConstants.SpeakerAngle;
+    // }
+    // return pivotConstants.SpeakerAngle;
   }
 
   public double calculateChassisAngle() { //what angle to point the shooter at

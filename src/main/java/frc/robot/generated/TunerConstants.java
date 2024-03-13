@@ -29,11 +29,11 @@ public class TunerConstants {
     private static final ClosedLoopOutputType steerClosedLoopOutput = ClosedLoopOutputType.Voltage;
     // The closed-loop output type to use for the drive motors;
     // This affects the PID/FF gains for the drive motors
-    private static final ClosedLoopOutputType driveClosedLoopOutput = ClosedLoopOutputType.Voltage;
+    private static final ClosedLoopOutputType driveClosedLoopOutput = ClosedLoopOutputType.TorqueCurrentFOC; // Requires CTRE License
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
-    private static final double kSlipCurrentA = 200.0; // was 300
+    private static final double kSlipCurrentA = 90.0; // was 300, 200 during CMR TODO set back to 200 for CIR
 
     // Theoretical free speed (m/s) at 12v applied output;
     // This needs to be tuned to your individual robot

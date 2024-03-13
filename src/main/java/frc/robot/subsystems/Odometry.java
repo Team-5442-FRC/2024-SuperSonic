@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.driveConstants;
+import frc.robot.Constants.shooterConstants;
 
 public class Odometry extends SubsystemBase {
 
@@ -61,8 +62,8 @@ public class Odometry extends SubsystemBase {
       RobotContainer.drivetrain.getRotation3d().toRotation2d(),
       swerveModulePositions,
       new Pose2d(),
-      VecBuilder.fill(0.2, 0.2, Units.degreesToRadians(2)), // Vision Standard Deviation (Default 0.01 and 5deg)
-      VecBuilder.fill(0.8, 0.8, Units.degreesToRadians(30)) // Drive Standard Deviation (Default 0.02 and 30deg)
+      VecBuilder.fill(0.2, 0.2, Units.degreesToRadians(2)), // Drive Standard Deviation (Default 0.01 and 5deg)
+      VecBuilder.fill(0.8, 0.8, Units.degreesToRadians(30)) // Vision Standard Deviation (Default 0.02 and 30deg)
     );
 
   }

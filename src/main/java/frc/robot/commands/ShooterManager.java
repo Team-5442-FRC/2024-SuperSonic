@@ -120,6 +120,13 @@ public class ShooterManager extends Command {
       RobotContainer.ShooterMode = 0;
     } else if (RobotContainer.xbox2.getLeftBumper()) { // Passing - Left Bumper
       RobotContainer.ShooterMode = 3;
+    } else if (RobotContainer.xbox2.getRightBumper()) { // For moving notes in auto
+      RobotContainer.ShooterMode = 4;
+    }
+
+    if (RobotContainer.ShooterMode == 4) {
+      RobotContainer.shooter.setShooterSpeed(0.2);
+      RobotContainer.shooter.setIntakeSpeed(shooterConstants.IntakeSpeed);
     }
 
     // if (Math.abs(RobotContainer.xbox2.getLeftY()) >= shooterConstants.TriggerDeadzone) targetAngle += RobotContainer.xbox2.getLeftY();

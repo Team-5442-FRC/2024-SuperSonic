@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -67,20 +68,41 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    RobotContainer.Shoot.cancel();
 
-    Optional<Alliance> ally = DriverStation.getAlliance();
-    new Rotation2d();
-    if(ally.get() == Alliance.Blue) { // Set blue field orientation.  TODO - CHECK IF THIS WORKS PROPERLY.  ADDED 3/7/24.
-      RobotContainer.drivetrain.seedFieldRelative(new Pose2d(RobotContainer.odometry.getPose().getTranslation(), Rotation2d.fromDegrees(RobotContainer.odometry.getPose().getRotation().getDegrees())));
+    
+    if (RobotContainer.vision.targetID > 0) { // If AprilTag in view, set field oriented.
+      Optional<Alliance> ally = DriverStation.getAlliance();
+      new Rotation2d();
+      if(ally.get() == Alliance.Blue) { // Set blue field orientation at the start of the match.
+        RobotContainer.drivetrain.seedFieldRelative(new Pose2d(RobotContainer.odometry.getPose().getTranslation(), Rotation2d.fromDegrees(RobotContainer.vision.getFieldPose().getRotation().getDegrees())));
+      }
+      else if(ally.get() == Alliance.Red) { // Set red field orientation at the start of the match.
+        RobotContainer.drivetrain.seedFieldRelative(new Pose2d(RobotContainer.odometry.getPose().getTranslation(), Rotation2d.fromDegrees(180 + RobotContainer.vision.getFieldPose().getRotation().getDegrees())));
+      }
+
+      RobotContainer.hasFieldOriented = true;
+    } else {
+      RobotContainer.xbox1.setRumble(RumbleType.kBothRumble, 0.5); // Rumble to notify driver there is no field orientation
     }
-    else if(ally.get() == Alliance.Red) { // Set red field orientation.  TODO - CHECK IF THIS WORKS PROPERLY.  ADDED 3/7/24.
-      RobotContainer.drivetrain.seedFieldRelative(new Pose2d(RobotContainer.odometry.getPose().getTranslation(), Rotation2d.fromDegrees(360 - RobotContainer.odometry.getPose().getRotation().getDegrees())));
-    }
+
   }
 
   @Override
   public void teleopPeriodic() {
+    if (!RobotContainer.hasFieldOriented && RobotContainer.vision.targetID > 0) { // Orient to Field at the start of the match
+      Optional<Alliance> ally = DriverStation.getAlliance();
+      new Rotation2d();
+      if(ally.get() == Alliance.Blue) { // Set blue field orientation at the start of the match.
+        RobotContainer.drivetrain.seedFieldRelative(new Pose2d(RobotContainer.odometry.getPose().getTranslation(), Rotation2d.fromDegrees(RobotContainer.vision.getFieldPose().getRotation().getDegrees())));
+      }
+      else if(ally.get() == Alliance.Red) { // Set red field orientation at the start of the match.
+        RobotContainer.drivetrain.seedFieldRelative(new Pose2d(RobotContainer.odometry.getPose().getTranslation(), Rotation2d.fromDegrees(180 + RobotContainer.vision.getFieldPose().getRotation().getDegrees())));
+      }
 
+      RobotContainer.hasFieldOriented = true;
+      RobotContainer.xbox1.setRumble(RumbleType.kBothRumble, 0); // Disable rumble after field orientation is set
+    }
   }
 
   @Override
