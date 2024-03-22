@@ -42,17 +42,18 @@ public class Constants {
 
     public static final class shooterConstants {
 
-        public final static double ShooterMaxSpeed = 0.65; // Was 0.8
-        public final static double ShooterMinSpeed = 0.65; // Was 0.4
-        public final static double PassingSpeed = 0.56;
-        public final static double ShooterBottomSpeedDifference = 0.08; //How much slower should the bottom speeds be
+        public final static double ShooterMaxSpeed = 0.68; // Was 0.8
+        public final static double ShooterMinSpeed = 0.68; // Was 0.4
+        public final static double PassingSpeed = 0.54; // Was 0.56
+        public final static double ShooterBottomSpeedDifference = 0.06; //How much slower should the bottom speeds be (Was 0.08)
         public final static double AmpSpeed = 0.4; // Both motors same speed
-        public final static double IntakeSpeed = 0.35;
+        public final static double IntakeSpeed = 0.25;
         public final static double ReverseIntakeSpeed = -0.15;
-        public final static double ReverseIntakeAutomaticSpeed = -0.2;
+        public final static double ReverseIntakeAutomaticSpeed = -0.125;
         public final static double ReverseDuration = 0.5; // Seconds
         public final static double TriggerDeadzone = 0.9;
-        public final static double MotorSettledAmps = 22;
+        public final static double MotorSettledAmps = 22; // For revving motors (No longer used, now using timer 3/15/24)
+        public final static double MotorSettledTime = 1; // Seconds
 
         public final static double AutonomousShootWait = 0.75; // Seconds
 
@@ -105,7 +106,7 @@ public class Constants {
         // public final static double MaxCycles = 0; // Maximum amount of encoder cycles (360 degrees per cycle)
         // public final static double MaxDegrees = 0; // Maximum value of encoder degrees
         // public final static double CycleTolerance = 180; // How many degrees have to change to be considered a cycle
-        public final static double MinDistance = 0;
+        public final static double MinDistance = -2; // DO NOT LEAVE IN THE LOWEST POSITION WHEN RESETTING THE ENCODER!
         public final static double MaxDistance = 22.4; // SHOULD BE 22.4
 
     }

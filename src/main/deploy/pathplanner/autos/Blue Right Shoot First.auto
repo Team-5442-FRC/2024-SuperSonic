@@ -16,6 +16,24 @@
           "data": {
             "name": "Shoot Cargo"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Blue Right Straight Intake"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.25
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Shoot"
+          }
         }
       ]
     }

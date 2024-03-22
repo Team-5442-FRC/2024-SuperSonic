@@ -31,7 +31,8 @@ public class Climber extends SubsystemBase {
   public void climb(double speed) {
     speed = -speed;
 
-    if(RobotContainer.ShooterMode == 2 || !RobotContainer.climberLimits) {
+    // CLIMBER NOW MOVES IN ANY MODE.  BE CAREFUL WITH AMP!
+    // if(RobotContainer.ShooterMode == 2 || !RobotContainer.climberLimits) {
       if(speed > 0 && getClimberDistance() >= climberConstants.MaxDistance && RobotContainer.climberLimits) {
         RobotContainer.climberMotor.set(0);
       } else if (speed < 0 && getClimberDistance() <= climberConstants.MinDistance && RobotContainer.climberLimits) {
@@ -39,7 +40,7 @@ public class Climber extends SubsystemBase {
       } else {
         RobotContainer.climberMotor.set(speed);
       }
-    }
+    // }
 
     // if ((RobotContainer.climberCoder.get()) - lastEncoderValue >= climberConstants.CycleTolerance) { // Increase cycle counter
     //   cycles += 1;

@@ -39,9 +39,11 @@ public class PathPlanner extends SubsystemBase {
     funnyunChooser.addOption("Shoot and Park Auto", " Park");
     funnyunChooser.addOption("One Funnyun Auto", " Single");
     funnyunChooser.addOption("Two Funnyun Auto", " Double");
+    funnyunChooser.addOption("Three Funnyun Auto", " Triple");
+    funnyunChooser.addOption("Three Funnyun (Center) Auto", " Triple Center");
     funnyunChooser.addOption("Shoot First Auto", " Shoot First");
-    funnyunChooser.addOption("Two Funnyun Auto + Third Pickup", " Triple");
-    funnyunChooser.addOption("ACCURACY", " Accuracy");
+    funnyunChooser.addOption("Center", " Center");
+    // funnyunChooser.addOption("ACCURACY", " Accuracy");
 
   }
 

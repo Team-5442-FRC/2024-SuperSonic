@@ -53,6 +53,19 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+
+    if (RobotContainer.vision.targetID > 0) { // If AprilTag in view, set field oriented.
+      Optional<Alliance> ally = DriverStation.getAlliance();
+      new Rotation2d();
+      if(ally.get() == Alliance.Blue) { // Set blue field orientation at the start of the match.
+        RobotContainer.drivetrain.seedFieldRelative(new Pose2d(RobotContainer.odometry.getPose().getTranslation(), Rotation2d.fromDegrees(RobotContainer.vision.getFieldPose().getRotation().getDegrees())));
+      }
+      else if(ally.get() == Alliance.Red) { // Set red field orientation at the start of the match.
+        RobotContainer.drivetrain.seedFieldRelative(new Pose2d(RobotContainer.odometry.getPose().getTranslation(), Rotation2d.fromDegrees(180 + RobotContainer.vision.getFieldPose().getRotation().getDegrees())));
+      }
+
+      RobotContainer.hasFieldOriented = true;
+    }
   }
 
   @Override
@@ -68,10 +81,12 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    RobotContainer.Shoot.cancel();
-
+    RobotContainer.Shoot.cancel(); // Attempting to end the command if it does not finish during autonomous
+    RobotContainer.shootOverride = false; // Sometimes gets stuck to true after autonomous
+    RobotContainer.intakeOverride = false; // Sometimes gets stuck to true after autonomous
     
-    if (RobotContainer.vision.targetID > 0) { // If AprilTag in view, set field oriented.
+    
+    if (!RobotContainer.hasFieldOriented && RobotContainer.vision.targetID > 0) { // If AprilTag in view, set field oriented.
       Optional<Alliance> ally = DriverStation.getAlliance();
       new Rotation2d();
       if(ally.get() == Alliance.Blue) { // Set blue field orientation at the start of the match.
@@ -82,15 +97,14 @@ public class Robot extends TimedRobot {
       }
 
       RobotContainer.hasFieldOriented = true;
-    } else {
+    } else if (!RobotContainer.hasFieldOriented) {
       RobotContainer.xbox1.setRumble(RumbleType.kBothRumble, 0.5); // Rumble to notify driver there is no field orientation
     }
-
   }
 
   @Override
   public void teleopPeriodic() {
-    if (!RobotContainer.hasFieldOriented && RobotContainer.vision.targetID > 0) { // Orient to Field at the start of the match
+    if (!RobotContainer.hasFieldOriented && RobotContainer.vision.targetID > 0) { // Orient to Field during the match
       Optional<Alliance> ally = DriverStation.getAlliance();
       new Rotation2d();
       if(ally.get() == Alliance.Blue) { // Set blue field orientation at the start of the match.

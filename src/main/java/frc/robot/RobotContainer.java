@@ -26,6 +26,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -159,13 +160,26 @@ public class RobotContainer {
 
       joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
 
-      joystick.rightBumper().whileTrue(
-          drivetrain.applyRequest(() ->
+      // joystick.rightBumper().whileTrue(
+      joystick.leftBumper().whileTrue(
+      drivetrain.applyRequest(() ->
           driveRobot
               .withVelocityX(Math.pow(Deadzone(joystick.getLeftY()), 3) * driveConstants.MaxSpeed) //* (1 - (joystick.getLeftTriggerAxis() * 0.8))) // Drive forward with negative Y (forward)
               .withVelocityY(Math.pow(Deadzone(joystick.getLeftX()), 3) * driveConstants.MaxSpeed) //* (1 - (joystick.getLeftTriggerAxis() * 0.8))) // Drive left with negative X (left)
               .withRotationalRate(-Math.pow(Deadzone(joystick.getRightX()), 3) * driveConstants.MaxAngularRate) // Drive counterclockwise with negative X (left)
-        ));
+      ));
+
+      joystick.leftBumper().onTrue(new Command() { // Reset driver rumble when left bumper is pressed
+        @Override
+        public void initialize() {
+          xbox1.setRumble(RumbleType.kBothRumble, 0);
+        }
+
+        @Override
+        public boolean isFinished() {
+          return true;
+        }
+      });
 
       // reset the field-centric heading on down dpad press (used to be left bumper)
       // joystick.leftBumper().onTrue(new Command() {
@@ -174,6 +188,7 @@ public class RobotContainer {
         public void initialize() {
           drivetrain.seedFieldRelative();
           hasFieldOriented = true;
+          xbox1.setRumble(RumbleType.kBothRumble, 0);
         }
         @Override 
         public boolean isFinished() {
@@ -265,9 +280,9 @@ public class RobotContainer {
     pivotCoder = new DutyCycleEncoder(2);
     leftPivotMotor = new CANSparkMax(13, MotorType.kBrushless);
     rightPivotMotor = new CANSparkMax(14, MotorType.kBrushless);
-    shooterMotor1 = new CANSparkFlex(1, MotorType.kBrushless);
-    shooterMotor2 = new CANSparkFlex(2, MotorType.kBrushless);
-    intakeMotor = new CANSparkFlex(3, MotorType.kBrushless);
+    shooterMotor1 = new CANSparkFlex(1, MotorType.kBrushless); // Top shooter motor (relative to shoot mode)
+    shooterMotor2 = new CANSparkFlex(2, MotorType.kBrushless); // Bottom shooter motor (relative to shoot mode)
+    intakeMotor = new CANSparkFlex(3, MotorType.kBrushless); // Motor for orange intake wheels
     shooter = new Shooter();
       
     leftPivotMotor.setIdleMode(IdleMode.kBrake);

@@ -18,8 +18,31 @@ public class ShooterManager extends Command {
   DigitalInput BackProximitySensor, FrontProximitySensor;
   boolean kIsFunnyun = true;
   boolean backTripped = false;
+  boolean revving = false;
   double targetAngle = pivotConstants.IntakeAngle;
   double climberOffset = 0;
+  WaitCommand intakeWait = new WaitCommand(shooterConstants.MotorSettledTime);
+  // SequentialCommandGroup shooterGroup = new SequentialCommandGroup(
+  //   new WaitCommand(shooterConstants.MotorSettledTime),
+  //   new Command() {
+  //     @Override
+  //     public void initialize() {
+  //       addRequirements(RobotContainer.shooter);
+  //     }
+
+  //     @Override
+  //     public void execute() {
+  //       if (RobotContainer.xbox2A.getAsBoolean() || RobotContainer.shootOverride) speed = shooterConstants.IntakeSpeed;
+  //       // System.out.println("ATTEMPTING TO SHOOT");
+  //     }
+
+  //     @Override
+  //     public boolean isFinished() {
+  //       // return (!RobotContainer.xbox2A.getAsBoolean() && !RobotContainer.shootOverride);
+  //       return false;
+  //     }
+  //   }
+  // );
 
   /** Creates a new setShooterSpeed. */
   public ShooterManager() {
@@ -42,7 +65,8 @@ public class ShooterManager extends Command {
 
     //Shooter Code
 
-    if((RobotContainer.xbox2.getRightTriggerAxis() > shooterConstants.TriggerDeadzone || RobotContainer.revOverride) && RobotContainer.hasFunnyun) {
+    // if((RobotContainer.xbox2.getRightTriggerAxis() > shooterConstants.TriggerDeadzone || RobotContainer.revOverride) && RobotContainer.hasFunnyun) {
+    if((RobotContainer.xbox2.getRightTriggerAxis() > shooterConstants.TriggerDeadzone || RobotContainer.revOverride)) {
 
       if(RobotContainer.ShooterMode == 1) {
         RobotContainer.shooter.setShooterSpeed(RobotContainer.shooter.getSpeakerSpeed());
@@ -56,10 +80,27 @@ public class ShooterManager extends Command {
       RobotContainer.shooter.setShooterSpeed(0);
     }
 
-    if((RobotContainer.xbox2A.getAsBoolean() || RobotContainer.shootOverride) && RobotContainer.hasFunnyun && (RobotContainer.xbox2.getRightTriggerAxis() > shooterConstants.TriggerDeadzone || RobotContainer.revOverride) && RobotContainer.shooter.shooterMotor1.getOutputCurrent() <= shooterConstants.MotorSettledAmps ) {
-      speed = shooterConstants.IntakeSpeed;
-    }
+    // if((RobotContainer.xbox2A.getAsBoolean() || RobotContainer.shootOverride) && RobotContainer.hasFunnyun && (RobotContainer.xbox2.getRightTriggerAxis() > shooterConstants.TriggerDeadzone || RobotContainer.revOverride) && RobotContainer.shooter.shooterMotor1.getOutputCurrent() <= shooterConstants.MotorSettledAmps ) {
+    //   //   if (!shooterGroup.isScheduled()) shooterGroup.schedule();
+    //   speed = shooterConstants.IntakeSpeed;
+    //   // } else {
+    //     //   shooterGroup.cancel();
+    // }
+    
+    if(RobotContainer.xbox2.getRightTriggerAxis() > shooterConstants.TriggerDeadzone || RobotContainer.revOverride) {
+      if (!intakeWait.isScheduled() && revving == false) intakeWait.schedule(); // Start the timer if it's not already running
+      
+      revving = true; // If "revving" is true, the timer will not start over until done revving
 
+      if ((RobotContainer.xbox2A.getAsBoolean() || RobotContainer.shootOverride) && intakeWait.isFinished()) { // If 
+        speed = shooterConstants.IntakeSpeed;
+      } else speed = 0;
+
+    } else {
+      revving = false;
+      if (intakeWait.isScheduled()) intakeWait.cancel(); // Stop the timer if no longer revving
+    }
+      
     if(!kIsFunnyun && RobotContainer.FrontProximitySensor.get() && (RobotContainer.xbox2.getRightTriggerAxis() > shooterConstants.TriggerDeadzone || RobotContainer.revOverride) && (RobotContainer.xbox2A.getAsBoolean() || RobotContainer.shootOverride)) {
       RobotContainer.noFunnyun.schedule();
       kIsFunnyun = true;
@@ -99,7 +140,7 @@ public class ShooterManager extends Command {
       backTripped = false;
     }
 
-    if(speed > 0 // Driving
+    if(speed > 0 // Intaking
       && RobotContainer.hasFunnyun == false // Not currently registering a funnyun
       && !FrontProximitySensor.get() // Second stage of intake is tripped
       && backTripped) // First stage was tripped last cycle
@@ -120,7 +161,7 @@ public class ShooterManager extends Command {
       RobotContainer.ShooterMode = 0;
     } else if (RobotContainer.xbox2.getLeftBumper()) { // Passing - Left Bumper
       RobotContainer.ShooterMode = 3;
-    } else if (RobotContainer.xbox2.getRightBumper()) { // For moving notes in auto
+    } else if (RobotContainer.xbox2.getRightBumper()) { // For moving notes in auto (currently unused 3/15/24)
       RobotContainer.ShooterMode = 4;
     }
 
@@ -162,9 +203,8 @@ public class ShooterManager extends Command {
 
     RobotContainer.shooter.pivotToAngle(targetAngle);
 
+    }
 
-
-  }
 
   // Called once the command ends or is interrupted.
   @Override

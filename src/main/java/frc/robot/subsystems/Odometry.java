@@ -101,7 +101,8 @@ public class Odometry extends SubsystemBase {
 
     pose = poseEstimator.update(RobotContainer.drivetrain.getRotation3d().toRotation2d(), swerveModulePositions);  
 
-    if (RobotContainer.vision.target()) {
+    // if (RobotContainer.vision.target()) { // OLD, seems to only pick up the speaker tag
+    if (RobotContainer.vision.targetID > 0) { // Should run if any tags are in view
       poseEstimator.addVisionMeasurement(RobotContainer.vision.getFieldPose(), Timer.getFPGATimestamp());
     }
 

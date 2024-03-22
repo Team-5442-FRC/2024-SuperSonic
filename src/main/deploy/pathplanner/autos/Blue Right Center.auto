@@ -2,19 +2,19 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.0081866317578805,
-      "y": 6.630585568863446
+      "x": 0.8305816611633238,
+      "y": 6.81805748226881
     },
-    "rotation": -142.49585763972996
+    "rotation": -123.46537934635526
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "Shoot Cargo"
+            "pathName": "Blue Right Center"
           }
         }
       ]
